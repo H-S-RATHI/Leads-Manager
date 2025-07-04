@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { LeadDetail } from "@/components/leads/lead-detail"
 import { notFound } from "next/navigation"
+import { connectDB } from "@/lib/mongodb"
+import { Lead } from "@/lib/models/Lead"
 
 interface LeadPageProps {
   params: {
@@ -12,29 +14,34 @@ interface LeadPageProps {
 export default async function LeadPage({ params }: LeadPageProps) {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
+  if (!session || !session.user) {
     return null
   }
 
   try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/leads/${params.id}`, {
-      headers: {
-        Cookie: `next-auth.session-token=${session.user.id}`, // This is simplified - in real app you'd handle this properly
-      },
-    })
+    await connectDB()
+    const lead = await Lead.findById(params.id)
+      .populate("assignedTo", "name email")
+      .populate("assignmentHistory.assignedTo", "name email")
+      .populate("assignmentHistory.assignedBy", "name email")
+      .populate("statusHistory.changedBy", "name email")
 
-    if (!response.ok) {
+    if (!lead) {
       notFound()
     }
 
-    const lead = await response.json()
+    // Check permissions - sales reps can only see their assigned leads
+    if (session.user.role === "sales_rep" && lead.assignedTo?._id?.toString() !== session.user.id) {
+      notFound()
+    }
 
     return (
       <div className="space-y-6">
-        <LeadDetail lead={lead} userRole={session.user.role} userId={session.user.id} />
+        <LeadDetail lead={lead.toObject()} userRole={session.user.role ?? ""} userId={session.user.id ?? ""} />
       </div>
     )
   } catch (error) {
+    console.error("Error loading lead detail page:", error)
     notFound()
   }
 }
