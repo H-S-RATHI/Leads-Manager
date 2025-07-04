@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
             // Log activity
             await Activity.create({
-              user: null, // System action
+              user: "system", // System action
               action: "lead_received",
               details: {
                 leadId: lead._id,
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
             // Log error
             await Activity.create({
-              user: null,
+              user: "system",
               action: "lead_processing_error",
               details: {
                 leadgenId,
