@@ -65,15 +65,29 @@ export async function POST(request: NextRequest) {
             });
             console.log("[Webhook] Extracted fieldData:", fieldData);
 
-            // Create lead in database
+            // Enhanced name extraction - using the exact field names from your form
+            const name = fieldData['full name'] || 
+                        fieldData.full_name || 
+                        fieldData.name || 
+                        fieldData.first_name || 
+                        fieldData.firstname ||
+                        fieldData['first name'] ||
+                        fieldData['firstname'] ||
+                        fieldData['last name'] ||
+                        fieldData['lastname'] ||
+                        `${fieldData.first_name || fieldData.firstname || ''} ${fieldData.last_name || fieldData.lastname || ''}`.trim() ||
+                        "Unknown";
+
+            // Create lead in database with correct field mappings
             const lead = await Lead.create({
               leadgenId,
               formId,
-              name: fieldData.full_name || fieldData.name || "Unknown",
+              name: name,
               email: fieldData.email || "",
-              phone: fieldData.phone_number || fieldData.phone || null,
-              budget: fieldData.budget ? Number.parseFloat(fieldData.budget) : null,
-              plotSize: fieldData.plot_size || fieldData["plot size"] || null,
+              phone: fieldData.phone_number || null,
+              budget: fieldData['what_is_your_budget?'] || null,
+              plotSize: fieldData['what_plot_size_are_you_looking_for?'] || null,
+              city: fieldData.city || null,
               status: "New",
             });
             console.log("[Webhook] Lead created in DB:", lead._id);

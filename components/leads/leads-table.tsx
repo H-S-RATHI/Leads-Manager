@@ -14,6 +14,7 @@ interface Lead {
   name: string
   email: string
   phone: string
+  city: string
   status: string
   assignedTo: any
   createdAt: string
@@ -128,6 +129,9 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                         <span>{lead.phone}</span>
                       </a>
                     )}
+                    {lead.city && (
+                      <p className="text-sm text-gray-500">📍 {lead.city}</p>
+                    )}
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-xs text-gray-500">
                         {lead.assignedTo ? lead.assignedTo.name : "Unassigned"}
@@ -153,6 +157,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     <TableHead>Name</TableHead>
                     <TableHead className="hidden md:table-cell">Email</TableHead>
                     <TableHead>Phone</TableHead>
+                    <TableHead className="hidden lg:table-cell">City</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
                     <TableHead className="hidden xl:table-cell">Created</TableHead>
@@ -174,6 +179,9 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                             <span className="hidden sm:inline">{lead.phone}</span>
                           </a>
                         )}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {lead.city || "-"}
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>

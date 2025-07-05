@@ -8,7 +8,8 @@
     "lint": "next lint",
     "start": "next start",
     "test:facebook": "node scripts/test-facebook-token.js",
-    "test:insights": "node scripts/test-ad-insights.js"
+    "test:insights": "node scripts/test-ad-insights.js",
+    "check:form": "node scripts/check-form-fields.js"
   },
   "dependencies": {
     "@auth/core": "latest",

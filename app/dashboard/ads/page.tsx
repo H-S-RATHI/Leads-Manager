@@ -5,6 +5,18 @@ import { AdInsights } from "@/components/ads/ad-insights"
 export default async function AdsPage() {
   const session = await getServerSession(authOptions)
 
+  // Redirect sales reps away from this page
+  if (session?.user?.role === "sales_rep") {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Access Denied</h1>
+          <p className="text-gray-600">You don't have permission to view this page.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>

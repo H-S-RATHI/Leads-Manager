@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, Users, TrendingUp, DollarSign } from "lucide-react"
 
@@ -12,6 +13,8 @@ interface Stats {
 }
 
 export function DashboardStats() {
+  const { data: session } = useSession()
+  const isSalesRep = session?.user?.role === "sales_rep"
   const [stats, setStats] = useState<Stats>({
     totalLeads: 0,
     newLeads: 0,
@@ -44,31 +47,40 @@ export function DashboardStats() {
       value: stats.totalLeads,
       icon: Briefcase,
       color: "text-blue-600",
+      showForSalesRep: true,
     },
     {
       title: "New Leads",
       value: stats.newLeads,
       icon: TrendingUp,
       color: "text-green-600",
+      showForSalesRep: true,
     },
     {
       title: "Total Users",
       value: stats.totalUsers,
       icon: Users,
       color: "text-purple-600",
+      showForSalesRep: false,
     },
     {
       title: "Conversion Rate",
       value: `${stats.conversionRate}%`,
       icon: DollarSign,
       color: "text-orange-600",
+      showForSalesRep: false,
     },
   ]
 
+  // Filter stats based on user role
+  const filteredStatCards = isSalesRep 
+    ? statCards.filter(stat => stat.showForSalesRep)
+    : statCards
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
+      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isSalesRep ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
+        {[...Array(isSalesRep ? 2 : 4)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-4 sm:p-6">
               <div className="animate-pulse">
@@ -83,8 +95,8 @@ export function DashboardStats() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {statCards.map((stat) => {
+    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isSalesRep ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
+      {filteredStatCards.map((stat) => {
         const Icon = stat.icon
         return (
           <Card key={stat.title}>

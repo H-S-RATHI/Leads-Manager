@@ -109,6 +109,12 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
                 <span className="text-sm">{currentLead.plotSize}</span>
               </div>
             )}
+            {currentLead.city && (
+              <div className="flex items-center justify-between">
+                <span className="font-medium">City:</span>
+                <span className="text-sm">📍 {currentLead.city}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span className="font-medium">Created:</span>
               <span className="text-sm flex items-center gap-1">
