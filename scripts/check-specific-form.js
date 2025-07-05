@@ -164,7 +164,7 @@ async function checkSpecificForm() {
            } catch (error) {
              console.log(`   ❌ Error processing lead data: ${error.message}`);
            }
-         });
+         };
       } else {
         console.log('   No leads found in this form yet');
       }
