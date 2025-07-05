@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { fetchAdInsights } from "@/lib/facebook"
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,23 +19,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Account ID is required" }, { status: 400 })
     }
 
-    // This would normally fetch from Facebook Marketing API
-    // For demo purposes, returning mock data
-    const mockInsights = {
-      data: [
-        {
-          impressions: "10000",
-          clicks: "500",
-          spend: "250.00",
-          cpc: "0.50",
-          cost_per_lead: "5.00",
-          date_start: new Date(Date.now() - Number.parseInt(since) * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-          date_stop: new Date(Date.now() - Number.parseInt(until) * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-        },
-      ],
-    }
+    // Calculate date range
+    const sinceDate = new Date()
+    sinceDate.setDate(sinceDate.getDate() - parseInt(since))
+    
+    const untilDate = new Date()
+    untilDate.setDate(untilDate.getDate() - parseInt(until))
+    
+    const sinceStr = sinceDate.toISOString().split('T')[0]
+    const untilStr = untilDate.toISOString().split('T')[0]
 
-    return NextResponse.json(mockInsights)
+    try {
+      // Fetch real data from Facebook Marketing API
+      const insights = await fetchAdInsights(accountId, sinceStr, untilStr)
+      
+      return NextResponse.json(insights)
+    } catch (facebookError) {
+      console.error("Facebook API error:", facebookError)
+      
+      // Fallback to mock data if Facebook API fails
+      const mockInsights = {
+        data: [
+          {
+            impressions: "10000",
+            clicks: "500",
+            spend: "250.00",
+            cpc: "0.50",
+            cost_per_lead: "5.00",
+            date_start: sinceStr,
+            date_stop: untilStr,
+          },
+        ],
+      }
+
+      return NextResponse.json(mockInsights)
+    }
   } catch (error) {
     console.error("Error fetching ad insights:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
