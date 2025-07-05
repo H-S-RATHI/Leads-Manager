@@ -10,6 +10,10 @@ const leadSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  formName: {
+    type: String,
+    default: null,
+  },
   name: {
     type: String,
     required: true,
@@ -81,6 +85,10 @@ const leadSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now,
+  },
+  source: {
+    type: String,
+    default: null,
   },
 })
 

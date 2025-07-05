@@ -106,6 +106,9 @@ async function syncLeadsToDatabase() {
             plotSize: fieldData['what_plot_size_are_you_looking_for?'] || null,
             city: fieldData.city || null,
             status: "New",
+            assignedTo: null,
+            assignmentHistory: [],
+            statusHistory: [],
             createdAt: new Date(lead.created_time),
             updatedAt: new Date(),
             source: "facebook_form_sync"

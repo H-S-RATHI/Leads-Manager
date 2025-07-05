@@ -90,6 +90,10 @@ export async function POST(request: NextRequest) {
               plotSize: fieldData['what_plot_size_are_you_looking_for?'] || null,
               city: fieldData.city || null,
               status: "New",
+              assignedTo: null,
+              assignmentHistory: [],
+              statusHistory: [],
+              source: "facebook_webhook"
             });
             console.log("[Webhook] Lead created in DB:", lead._id);
 
