@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
             const lead = await Lead.create({
               leadgenId,
               formId,
+              formName: "Form For Video Ads", // Hardcoded for now, can be fetched dynamically
               name: name,
               email: fieldData.email || "",
               phone: fieldData.phone_number || null,

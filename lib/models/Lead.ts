@@ -23,7 +23,7 @@ const leadSchema = new mongoose.Schema({
     default: null,
   },
   budget: {
-    type: Number,
+    type: String,
     default: null,
   },
   plotSize: {
