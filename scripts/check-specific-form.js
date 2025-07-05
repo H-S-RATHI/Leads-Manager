@@ -71,7 +71,7 @@ async function checkSpecificForm() {
         let skippedCount = 0;
         let errorCount = 0;
 
-        for (const lead of leadsData.data) {
+        leadsData.data.forEach((lead, index) => {
            console.log(`\n--- Lead ${index + 1} ---`);
            console.log(`   Lead ID: ${lead.id}`);
            console.log(`   Created: ${lead.created_time}`);
@@ -164,7 +164,7 @@ async function checkSpecificForm() {
            } catch (error) {
              console.log(`   ❌ Error processing lead data: ${error.message}`);
            }
-         };
+         });
       } else {
         console.log('   No leads found in this form yet');
       }
