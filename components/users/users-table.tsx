@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useUsers } from "@/hooks/use-users"
 
 interface User {
   _id: string
@@ -15,26 +15,8 @@ interface User {
 }
 
 export function UsersTable() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("/api/users")
-        if (response.ok) {
-          const data = await response.json()
-          setUsers(data.users)
-        }
-      } catch (error) {
-        console.error("Failed to fetch users:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUsers()
-  }, [])
+  const { data, isLoading: loading } = useUsers()
+  const users = data?.users || []
 
   const getRoleColor = (role: string) => {
     switch (role) {

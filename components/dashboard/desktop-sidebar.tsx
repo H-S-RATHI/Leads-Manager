@@ -45,6 +45,7 @@ export function DesktopSidebar({ user }: DesktopSidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              prefetch={true}
               className={cn(
                 "flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
                 pathname === item.href ? "bg-gray-800 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",

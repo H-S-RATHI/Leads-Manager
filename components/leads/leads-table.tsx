@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Phone } from "lucide-react"
 import Link from "next/link"
+import { useLeads } from "@/hooks/use-leads"
 
 interface Lead {
   _id: string
@@ -27,56 +28,31 @@ interface LeadsTableProps {
 }
 
 export function LeadsTable({ userRole, userId }: LeadsTableProps) {
-  const [leads, setLeads] = useState<Lead[]>([])
-  const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const searchParams = useSearchParams()
+
+  // Extract filters from search params
+  const filters = useMemo(() => {
+    const filterObj: any = {}
+    searchParams.forEach((value, key) => {
+      if (value && key !== "assignedTo") {
+        filterObj[key] = value
+      } else if (key === "assignedTo" && userRole !== "sales_rep") {
+        filterObj[key] = value
+      }
+    })
+    return filterObj
+  }, [searchParams, userRole])
+
+  const { data, isLoading: loading } = useLeads(currentPage, 10, filters, userRole, userId)
+  const leads = data?.leads || []
+  const totalPages = data?.totalPages || 1
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage)
     // Scroll to top when page changes
     window.scrollTo({ top: 600, behavior: 'smooth' })
   }
-
-  useEffect(() => {
-    const fetchLeads = async () => {
-      setLoading(true)
-      try {
-        const params = new URLSearchParams()
-        params.set("page", currentPage.toString())
-        params.set("limit", "10")
-
-        // For sales reps, automatically filter to only their assigned leads
-        if (userRole === "sales_rep") {
-          params.set("assignedTo", userId)
-        }
-
-        // Add filters from search params (but respect sales rep restrictions)
-        searchParams.forEach((value, key) => {
-          if (value && key !== "assignedTo") {
-            params.set(key, value)
-          } else if (key === "assignedTo" && userRole !== "sales_rep") {
-            // Only allow assignedTo filter for admin/super_admin
-            params.set(key, value)
-          }
-        })
-
-        const response = await fetch(`/api/leads?${params.toString()}`)
-        if (response.ok) {
-          const data = await response.json()
-          setLeads(data.leads)
-          setTotalPages(data.totalPages)
-        }
-      } catch (error) {
-        console.error("Failed to fetch leads:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchLeads()
-  }, [currentPage, searchParams, userRole, userId])
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {

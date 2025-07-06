@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, Users, TrendingUp, DollarSign } from "lucide-react"
+import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 
 interface Stats {
   totalLeads: number
@@ -13,40 +14,16 @@ interface Stats {
   conversionRate: number
 }
 
-export function DashboardStats() {
+export const DashboardStats = React.memo(function DashboardStats() {
   const { data: session } = useSession()
   const router = useRouter()
   const isSalesRep = session?.user?.role === "sales_rep"
-  const [stats, setStats] = useState<Stats>({
-    totalLeads: 0,
-    newLeads: 0,
-    totalUsers: 0,
-    conversionRate: 0,
-  })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/dashboard/stats")
-        if (response.ok) {
-          const data = await response.json()
-          setStats(data)
-        }
-      } catch (error) {
-        console.error("Failed to fetch stats:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStats()
-  }, [])
+  const { data: stats, isLoading: loading } = useDashboardStats()
 
   const statCards = [
     {
       title: "Total Leads",
-      value: stats.totalLeads,
+      value: stats?.totalLeads || 0,
       icon: Briefcase,
       color: "text-blue-600",
       showForSalesRep: true,
@@ -54,7 +31,7 @@ export function DashboardStats() {
     },
     {
       title: "New Leads",
-      value: stats.newLeads,
+      value: stats?.newLeads || 0,
       icon: TrendingUp,
       color: "text-green-600",
       showForSalesRep: true,
@@ -62,7 +39,7 @@ export function DashboardStats() {
     },
     {
       title: "Total Users",
-      value: stats.totalUsers,
+      value: stats?.totalUsers || 0,
       icon: Users,
       color: "text-purple-600",
       showForSalesRep: false,
@@ -70,7 +47,7 @@ export function DashboardStats() {
     },
     {
       title: "Conversion Rate",
-      value: `${stats.conversionRate}%`,
+      value: `${stats?.conversionRate || 0}%`,
       icon: DollarSign,
       color: "text-orange-600",
       showForSalesRep: false,
@@ -118,4 +95,4 @@ export function DashboardStats() {
       })}
     </div>
   )
-}
+})
