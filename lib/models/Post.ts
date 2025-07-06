@@ -22,6 +22,19 @@ const postSchema = new mongoose.Schema({
       },
     },
   ],
+  editHistory: [
+    {
+      previousContent: String,
+      editedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      editedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

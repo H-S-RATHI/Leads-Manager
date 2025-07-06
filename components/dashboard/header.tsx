@@ -14,7 +14,7 @@ export function Header({ user }: HeaderProps) {
     <header className="bg-white shadow-sm border-b border-gray-200 px-4 py-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center">
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-semibold text-gray-900 truncate sm:text-xl">Welcome back, {user?.name}</h1>
+          <h1 className="text-lg font-semibold text-gray-900 truncate sm:text-xl">{user?.name}</h1>
           <p className="text-sm text-gray-500 capitalize mt-1">{user?.role?.replace("_", " ")}</p>
         </div>
 

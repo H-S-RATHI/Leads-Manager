@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const posts = await Post.find()
       .populate("author", "name profilePhoto")
       .populate("likes.user", "name")
+      .populate("editHistory.editedBy", "name")
       .sort({ createdAt: -1 })
       .limit(20)
 

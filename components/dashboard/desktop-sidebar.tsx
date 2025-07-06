@@ -15,15 +15,17 @@ export function DesktopSidebar({ user }: DesktopSidebarProps) {
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Leads", href: "/dashboard/leads", icon: Briefcase },
-    // Ad Performance is only for admin/super_admin
-    ...(user?.role !== "sales_rep" ? [{ name: "Ad Performance", href: "/dashboard/ads", icon: BarChart3 }] : []),
+    // Ad Performance is only for super_admin
+    ...(user?.role === "super_admin" ? [{ name: "Ad Performance", href: "/dashboard/ads", icon: BarChart3 }] : []),
     { name: "Feed", href: "/dashboard/feed", icon: MessageSquare },
     { name: "Profile", href: "/dashboard/profile", icon: UserCircle },
   ]
 
-  // Add admin-only navigation items
+  // Add admin-only navigation items (Users)
   if (["super_admin", "admin"].includes(user?.role)) {
-    navigation.splice(2, 0, { name: "Users", href: "/dashboard/users", icon: Users })
+    // Insert Users after Leads, but before Ad Performance for super_admin
+    const insertIndex = user?.role === "super_admin" ? 3 : 2
+    navigation.splice(insertIndex, 0, { name: "Users", href: "/dashboard/users", icon: Users })
   }
 
   // Add super admin-only navigation items

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, Users, TrendingUp, DollarSign } from "lucide-react"
 
@@ -14,6 +15,7 @@ interface Stats {
 
 export function DashboardStats() {
   const { data: session } = useSession()
+  const router = useRouter()
   const isSalesRep = session?.user?.role === "sales_rep"
   const [stats, setStats] = useState<Stats>({
     totalLeads: 0,
@@ -48,6 +50,7 @@ export function DashboardStats() {
       icon: Briefcase,
       color: "text-blue-600",
       showForSalesRep: true,
+      onClick: () => router.push("/dashboard/leads"),
     },
     {
       title: "New Leads",
@@ -55,6 +58,7 @@ export function DashboardStats() {
       icon: TrendingUp,
       color: "text-green-600",
       showForSalesRep: true,
+      onClick: () => router.push("/dashboard/leads?status=New"),
     },
     {
       title: "Total Users",
@@ -62,6 +66,7 @@ export function DashboardStats() {
       icon: Users,
       color: "text-purple-600",
       showForSalesRep: false,
+      onClick: () => router.push("/dashboard/users"),
     },
     {
       title: "Conversion Rate",
@@ -69,6 +74,7 @@ export function DashboardStats() {
       icon: DollarSign,
       color: "text-orange-600",
       showForSalesRep: false,
+      onClick: () => router.push("/dashboard/leads"),
     },
   ]
 
@@ -99,7 +105,7 @@ export function DashboardStats() {
       {filteredStatCards.map((stat) => {
         const Icon = stat.icon
         return (
-          <Card key={stat.title}>
+          <Card key={stat.title} className="cursor-pointer hover:shadow-md transition-shadow" onClick={stat.onClick}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium truncate">{stat.title}</CardTitle>
               <Icon className={`h-4 w-4 ${stat.color} flex-shrink-0`} />

@@ -5,8 +5,8 @@ import { AdInsights } from "@/components/ads/ad-insights"
 export default async function AdsPage() {
   const session = await getServerSession(authOptions)
 
-  // Redirect sales reps away from this page
-  if (session?.user?.role === "sales_rep") {
+  // Redirect non-super_admin users away from this page
+  if (session?.user?.role !== "super_admin") {
     return (
       <div className="space-y-6">
         <div>

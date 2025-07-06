@@ -18,6 +18,7 @@ interface Lead {
   status: string
   assignedTo: any
   createdAt: string
+  formName?: string
 }
 
 interface LeadsTableProps {
@@ -113,7 +114,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
           <div className="block sm:hidden">
             <div className="space-y-4 p-4">
               {leads.map((lead) => (
-                <Card key={lead._id} className="p-4">
+                <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}>
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium text-sm">{lead.name}</h3>
@@ -136,11 +137,11 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                       <span className="text-xs text-gray-500">
                         {lead.assignedTo ? lead.assignedTo.name : "Unassigned"}
                       </span>
-                      <Link href={`/dashboard/leads/${lead._id}`}>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
-                      </Link>
+                      {lead.formName && (
+                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                          {lead.formName}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -161,12 +162,12 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
                     <TableHead className="hidden xl:table-cell">Created</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="hidden lg:table-cell">Form</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {leads.map((lead) => (
-                    <TableRow key={lead._id}>
+                    <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}>
                       <TableCell className="font-medium">{lead.name}</TableCell>
                       <TableCell className="hidden md:table-cell">{lead.email}</TableCell>
                       <TableCell>
@@ -174,6 +175,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                           <a
                             href={`tel:${lead.phone}`}
                             className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <Phone className="h-4 w-4" />
                             <span className="hidden sm:inline">{lead.phone}</span>
@@ -192,12 +194,8 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                       <TableCell className="hidden xl:table-cell">
                         {new Date(lead.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell>
-                        <Link href={`/dashboard/leads/${lead._id}`}>
-                          <Button variant="outline" size="sm">
-                            View
-                          </Button>
-                        </Link>
+                      <TableCell className="hidden lg:table-cell">
+                        {lead.formName || "-"}
                       </TableCell>
                     </TableRow>
                   ))}

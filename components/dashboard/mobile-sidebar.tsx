@@ -19,8 +19,8 @@ export function MobileSidebar({ user }: MobileSidebarProps) {
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Leads", href: "/dashboard/leads", icon: Briefcase },
-    // Ad Performance is only for admin/super_admin
-    ...(user?.role !== "sales_rep" ? [{ name: "Ad Performance", href: "/dashboard/ads", icon: BarChart3 }] : []),
+    // Ad Performance is only for super_admin
+    ...(user?.role === "super_admin" ? [{ name: "Ad Performance", href: "/dashboard/ads", icon: BarChart3 }] : []),
     { name: "Feed", href: "/dashboard/feed", icon: MessageSquare },
     { name: "Profile", href: "/dashboard/profile", icon: UserCircle },
   ]
