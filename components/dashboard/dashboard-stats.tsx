@@ -85,7 +85,7 @@ export function DashboardStats() {
 
   if (loading) {
     return (
-      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isSalesRep ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
+      <div className={`grid grid-cols-2 gap-4 ${isSalesRep ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
         {[...Array(isSalesRep ? 2 : 4)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-4 sm:p-6">
@@ -101,7 +101,7 @@ export function DashboardStats() {
   }
 
   return (
-    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isSalesRep ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
+    <div className={`grid grid-cols-2 gap-4 ${isSalesRep ? 'lg:grid-cols-2' : 'lg:grid-cols-4'}`}>
       {filteredStatCards.map((stat) => {
         const Icon = stat.icon
         return (

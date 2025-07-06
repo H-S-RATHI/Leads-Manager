@@ -13,7 +13,7 @@ export default async function LeadsPage() {
       </div>
 
       <LeadsFilters />
-      <LeadsTable userRole={session?.user?.role} userId={session?.user?.id} />
+      <LeadsTable userRole={session?.user?.role || ""} userId={session?.user?.id || ""} />
     </div>
   )
 }

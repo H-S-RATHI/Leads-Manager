@@ -45,7 +45,19 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
       const response = await fetch("/api/users")
       if (response.ok) {
         const data = await response.json()
-        setUsers(data.users)
+        // Filter users based on user role
+        let filteredUsers = data.users
+        
+        if (userRole === "sales_rep") {
+          // Sales rep can only assign to other sales reps
+          filteredUsers = data.users.filter((user: any) => user.role === "sales_rep")
+        } else if (userRole === "admin") {
+          // Admin can assign to admin and sales rep, but not super admin
+          filteredUsers = data.users.filter((user: any) => user.role !== "super_admin")
+        }
+        // Super admin can assign to anyone (no filtering needed)
+        
+        setUsers(filteredUsers)
       }
     } catch (error) {
       console.error("Failed to fetch users:", error)

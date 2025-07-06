@@ -33,6 +33,12 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
   const [totalPages, setTotalPages] = useState(1)
   const searchParams = useSearchParams()
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    // Scroll to top when page changes
+    window.scrollTo({ top: 600, behavior: 'smooth' })
+  }
+
   useEffect(() => {
     const fetchLeads = async () => {
       setLoading(true)
@@ -215,7 +221,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
             disabled={currentPage === 1}
           >
             Previous
@@ -223,7 +229,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
             disabled={currentPage === totalPages}
           >
             Next

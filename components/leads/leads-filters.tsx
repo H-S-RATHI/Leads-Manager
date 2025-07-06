@@ -30,7 +30,16 @@ export function LeadsFilters() {
           const response = await fetch("/api/users")
           if (response.ok) {
             const data = await response.json()
-            setUsers(data.users)
+            // Filter users based on user role
+            let filteredUsers = data.users
+            
+            if (session?.user?.role === "admin") {
+              // Admin can filter by admin and sales rep, but not super admin
+              filteredUsers = data.users.filter((user: any) => user.role !== "super_admin")
+            }
+            // Super admin can filter by anyone (no filtering needed)
+            
+            setUsers(filteredUsers)
           }
         } catch (error) {
           console.error("Failed to fetch users:", error)
@@ -38,7 +47,7 @@ export function LeadsFilters() {
       }
       fetchUsers()
     }
-  }, [isSalesRep])
+  }, [isSalesRep, session?.user?.role])
 
   const applyFilters = () => {
     const params = new URLSearchParams()
