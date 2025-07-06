@@ -9,12 +9,14 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
+import { getSession } from "next-auth/react"
 
 interface ProfileFormProps {
   user: any
+  onProfileUpdated?: () => void
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
+export function ProfileForm({ user, onProfileUpdated }: ProfileFormProps) {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -61,6 +63,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
       })
       if (response.ok) {
         toast({ title: "Success", description: "Profile updated successfully" })
+        await getSession()
+        if (onProfileUpdated) onProfileUpdated()
       } else {
         throw new Error("Failed to update profile")
       }

@@ -17,7 +17,7 @@ export const queryClient = new QueryClient({
 export function createPersistentQuery<T>(
   queryKey: any[],
   fetchFn: () => Promise<T>,
-  ttl: number = 5 * 60 * 1000
+  ttl: number = 0
 ) {
   return {
     queryKey,

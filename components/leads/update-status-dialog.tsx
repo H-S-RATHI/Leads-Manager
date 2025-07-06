@@ -28,6 +28,7 @@ export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) 
   const { toast } = useToast()
 
   const statuses = ["New", "Contacted", "Qualified", "Purchased"]
+  const canSetToNew = lead.status === "New"
 
   const handleUpdateStatus = async () => {
     if (status === lead.status) {
@@ -97,9 +98,11 @@ export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) 
               </SelectTrigger>
               <SelectContent>
                 {statuses.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
+                  (s !== "New" || canSetToNew) ? (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ) : null
                 ))}
               </SelectContent>
             </Select>

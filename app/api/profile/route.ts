@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, email } = await request.json()
+    const { name, email, profilePhoto } = await request.json()
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 })
@@ -31,13 +31,31 @@ export async function PUT(request: NextRequest) {
 
     const updatedUser = await User.findByIdAndUpdate(
       session.user.id,
-      { name, email, updatedAt: new Date() },
+      { name, email, updatedAt: new Date(), ...(profilePhoto && { profilePhoto }) },
       { new: true },
     ).select("-password")
 
     return NextResponse.json(updatedUser)
   } catch (error) {
     console.error("Error updating profile:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    await connectDB()
+    const user = await User.findById(session.user.id).select("-password")
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+    return NextResponse.json(user)
+  } catch (error) {
+    console.error("Error fetching user profile:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

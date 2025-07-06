@@ -13,7 +13,7 @@ export function useLead(leadId: string) {
   }
 
   return useQuery({
-    ...createPersistentQuery(queryKey, fetchLead, 2 * 60 * 1000), // 2 minutes cache
-    staleTime: 30 * 1000, // 30 seconds
+    ...createPersistentQuery(queryKey, fetchLead, 0), // No persistent cache
+    staleTime: 0, // Always stale
   })
 } 

@@ -33,7 +33,6 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
   const { toast } = useToast()
 
   const requiresPassword = userRole === "sales_rep"
-  const canAssignToNew = lead.status === "New"
 
   useEffect(() => {
     if (open) {
@@ -74,11 +73,10 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
       })
       return
     }
-
-    if (!canAssignToNew && lead.status !== "New" && selectedUser === "new") {
+    if (selectedUser !== "unassign" && lead.assignedTo && lead.assignedTo._id === selectedUser) {
       toast({
-        title: "Not Allowed",
-        description: "Cannot reassign to 'New' after status is 'Contacted' or beyond.",
+        title: "Already Assigned",
+        description: "This lead is already assigned to this user.",
         variant: "destructive",
       })
       return
@@ -164,9 +162,6 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
               </SelectContent>
             </Select>
           </div>
-          {!canAssignToNew && (
-            <div className="text-xs text-red-500">Cannot reassign to 'New' after status is 'Contacted' or beyond.</div>
-          )}
 
           <div className="space-y-2">
             <Label htmlFor="note">Assignment Note</Label>

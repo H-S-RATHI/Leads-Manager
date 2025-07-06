@@ -59,7 +59,7 @@ export function useLeads(
   }
 
   return useQuery({
-    ...createPersistentQuery(queryKey, fetchLeads, 2 * 60 * 1000), // 2 minutes cache
-    staleTime: 30 * 1000, // 30 seconds
+    ...createPersistentQuery(queryKey, fetchLeads, 0), // No persistent cache
+    staleTime: 0, // Always stale
   })
 } 
