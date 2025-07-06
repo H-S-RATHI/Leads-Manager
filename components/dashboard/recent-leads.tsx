@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { useLeads } from "@/hooks/use-leads"
 
 interface Lead {
   _id: string
@@ -14,26 +14,8 @@ interface Lead {
 }
 
 export function RecentLeads() {
-  const [leads, setLeads] = useState<Lead[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchRecentLeads = async () => {
-      try {
-        const response = await fetch("/api/leads?limit=5&sort=createdAt")
-        if (response.ok) {
-          const data = await response.json()
-          setLeads(data.leads)
-        }
-      } catch (error) {
-        console.error("Failed to fetch recent leads:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchRecentLeads()
-  }, [])
+  const { data: leadsData, isLoading } = useLeads(1, 5)
+  const leads = leadsData?.leads || []
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -57,7 +39,7 @@ export function RecentLeads() {
         <CardDescription>Latest leads from your campaigns</CardDescription>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="animate-pulse">

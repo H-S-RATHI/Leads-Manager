@@ -63,6 +63,21 @@ export function ActivityLog() {
     return action.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
+  // Consistent date formatting function to prevent hydration errors
+  const formatDate = (date: Date | string) => {
+    const d = new Date(date)
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    }
+    return d.toLocaleString('en-US', options)
+  }
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -92,7 +107,7 @@ export function ActivityLog() {
                     <Badge className={getActionColor(activity.action)}>{formatAction(activity.action)}</Badge>
                     <span className="text-sm text-gray-500">{activity.user ? activity.user.name : "System"}</span>
                   </div>
-                  <p className="text-sm text-gray-600">{new Date(activity.createdAt).toLocaleString()}</p>
+                  <p className="text-sm text-gray-600">{formatDate(activity.createdAt)}</p>
                   {activity.details && Object.keys(activity.details).length > 0 && (
                     <div className="mt-2 text-xs text-gray-500">
                       <pre className="whitespace-pre-wrap">{JSON.stringify(activity.details, null, 2)}</pre>

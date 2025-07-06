@@ -13,6 +13,21 @@ interface LeadDetailProps {
   userId: string
 }
 
+// Consistent date formatting function to prevent hydration errors
+const formatDate = (date: Date | string) => {
+  const d = new Date(date)
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true
+  }
+  return d.toLocaleString('en-US', options)
+}
+
 export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
   const [currentLead, setCurrentLead] = useState(lead)
 
@@ -119,7 +134,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
               <span className="font-medium">Created:</span>
               <span className="text-sm flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                {new Date(currentLead.createdAt).toLocaleString()}
+                {formatDate(currentLead.createdAt)}
               </span>
             </div>
           </CardContent>
@@ -140,7 +155,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 bg-blue-500 rounded-full -ml-5"></div>
                     <span className="font-medium text-sm">Lead Assigned</span>
-                    <span className="text-xs text-gray-500">{new Date(assignment.assignedAt).toLocaleString()}</span>
+                    <span className="text-xs text-gray-500">{formatDate(assignment.assignedAt)}</span>
                   </div>
                   <p className="text-sm text-gray-600">
                     Assigned to <strong>{assignment.assignedTo?.name}</strong>
