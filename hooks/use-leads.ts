@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { createPersistentQuery } from "@/lib/query-client"
 
 interface Lead {
   _id: string
@@ -30,32 +31,35 @@ export function useLeads(
   userRole?: string,
   userId?: string
 ) {
+  const queryKey = ["leads", page, limit, filters, userRole, userId]
+  
+  const fetchLeads = async (): Promise<LeadsResponse> => {
+    const params = new URLSearchParams()
+    params.set("page", page.toString())
+    params.set("limit", limit.toString())
+
+    // For sales reps, automatically filter to only their assigned leads
+    if (userRole === "sales_rep") {
+      params.set("assignedTo", userId || "")
+    }
+
+    // Add filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "all") {
+        if (key === "assignedTo" && userRole === "sales_rep") return
+        params.set(key, value)
+      }
+    })
+
+    const response = await fetch(`/api/leads?${params.toString()}`)
+    if (!response.ok) {
+      throw new Error("Failed to fetch leads")
+    }
+    return response.json()
+  }
+
   return useQuery({
-    queryKey: ["leads", page, limit, filters, userRole, userId],
-    queryFn: async (): Promise<LeadsResponse> => {
-      const params = new URLSearchParams()
-      params.set("page", page.toString())
-      params.set("limit", limit.toString())
-
-      // For sales reps, automatically filter to only their assigned leads
-      if (userRole === "sales_rep") {
-        params.set("assignedTo", userId || "")
-      }
-
-      // Add filters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value && value !== "all") {
-          if (key === "assignedTo" && userRole === "sales_rep") return
-          params.set(key, value)
-        }
-      })
-
-      const response = await fetch(`/api/leads?${params.toString()}`)
-      if (!response.ok) {
-        throw new Error("Failed to fetch leads")
-      }
-      return response.json()
-    },
+    ...createPersistentQuery(queryKey, fetchLeads, 2 * 60 * 1000), // 2 minutes cache
     staleTime: 30 * 1000, // 30 seconds
   })
 } 
