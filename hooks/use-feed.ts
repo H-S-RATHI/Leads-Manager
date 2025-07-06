@@ -39,7 +39,7 @@ export function useFeed() {
   }
 
   return useQuery({
-    ...createPersistentQuery(queryKey, fetchFeed, 5 * 60 * 1000), // 5 minutes cache
-    staleTime: 60 * 1000, // 1 minute
+    ...createPersistentQuery(queryKey, fetchFeed, 0), // No persistent cache
+    staleTime: 0, // Always stale
   })
 } 

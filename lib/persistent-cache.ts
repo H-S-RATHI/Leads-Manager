@@ -51,7 +51,7 @@ class PersistentCache {
     this.saveToStorage()
   }
 
-  set<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): void {
+  set<T>(key: string, data: T, ttl: number = 0): void {
     const now = Date.now()
     this.cache.set(key, {
       data,

@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function CreatePost() {
   const [content, setContent] = useState("")
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,8 +33,8 @@ export function CreatePost() {
           title: "Success",
           description: "Post created successfully",
         })
-        // Refresh the page to show new post
-        window.location.reload()
+        // Smoothly update the feed without full page reload
+        await queryClient.invalidateQueries({ queryKey: ["feed"] })
       } else {
         throw new Error("Failed to create post")
       }
