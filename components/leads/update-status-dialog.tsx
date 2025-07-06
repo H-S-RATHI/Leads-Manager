@@ -23,6 +23,7 @@ interface UpdateStatusDialogProps {
 export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) {
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState(lead.status)
+  const [info, setInfo] = useState("")
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
@@ -33,19 +34,27 @@ export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) 
       setOpen(false)
       return
     }
-
+    if (!info.trim()) {
+      toast({
+        title: "Info Required",
+        description: "Please provide information about this status update.",
+        variant: "destructive",
+      })
+      return
+    }
     setLoading(true)
     try {
       const response = await fetch(`/api/leads/${lead._id}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, info }),
       })
 
       if (response.ok) {
         const updatedLead = await response.json()
         onUpdate(updatedLead)
         setOpen(false)
+        setInfo("")
         toast({
           title: "Success",
           description: "Lead status updated successfully",
@@ -94,6 +103,17 @@ export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) 
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
+            <textarea
+              id="status-info"
+              className="w-full border rounded p-2 min-h-[60px]"
+              placeholder="Describe what response you received or any important info..."
+              value={info}
+              onChange={e => setInfo(e.target.value)}
+              required
+            />
           </div>
         </div>
         <DialogFooter>

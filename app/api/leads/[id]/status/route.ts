@@ -13,7 +13,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { status } = await request.json()
+    const body = await request.json()
+    const status = body.status
+    const info = body.info || ""
 
     if (!["New", "Contacted", "Qualified", "Purchased"].includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 })
@@ -37,6 +39,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       status,
       changedBy: session.user.id,
       changedAt: new Date(),
+      info,
     })
     lead.updatedAt = new Date()
 

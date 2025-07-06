@@ -61,7 +61,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
           <h1 className="text-2xl sm:text-3xl font-bold truncate">{currentLead.name}</h1>
           <p className="text-gray-600 text-sm sm:text-base">Lead Details</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-row gap-2 w-full sm:w-auto mt-2 sm:mt-0">
           {canAssignLead() && <AssignLeadDialog lead={currentLead} onUpdate={setCurrentLead} userRole={userRole} />}
           <UpdateStatusDialog lead={currentLead} onUpdate={setCurrentLead} />
         </div>
@@ -172,6 +172,37 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
             </div>
           ) : (
             <p className="text-gray-500 text-center py-8">No activity recorded yet</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Status History Timeline */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Status History</CardTitle>
+          <CardDescription>All status changes for this lead</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {currentLead.statusHistory && currentLead.statusHistory.length > 0 ? (
+            <div className="space-y-4">
+              {currentLead.statusHistory.map((statusItem: any, index: number) => (
+                <div key={index} className="border-l-2 border-green-200 pl-4 pb-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full -ml-5"></div>
+                    <span className="font-medium text-sm">{statusItem.status}</span>
+                    <span className="text-xs text-gray-500">{formatDate(statusItem.changedAt)}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Changed by <strong>{statusItem.changedBy?.name || 'Unknown'}</strong>
+                  </p>
+                  {statusItem.info && (
+                    <p className="text-sm text-gray-500 mt-1 italic">"{statusItem.info}"</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No status changes recorded yet</p>
           )}
         </CardContent>
       </Card>

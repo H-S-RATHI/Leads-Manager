@@ -1,47 +1,22 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+"use client"
+
+import { useParams } from "next/navigation"
 import { LeadDetail } from "@/components/leads/lead-detail"
-import { notFound } from "next/navigation"
-import { connectDB } from "@/lib/mongodb"
-import { Lead } from "@/lib/models/Lead"
+import { useSession } from "next-auth/react"
+import { useLead } from "@/hooks/use-lead"
 
-interface LeadPageProps {
-  params: {
-    id: string
-  }
-}
+export default function LeadPage() {
+  const params = useParams()
+  const { data: session } = useSession()
+  const { data: lead, isLoading, error } = useLead(params.id as string)
 
-export default async function LeadPage({ params }: LeadPageProps) {
-  const session = await getServerSession(authOptions)
+  if (!session || !session.user) return null
+  if (isLoading) return <div>Loading...</div>
+  if (error || !lead) return <div>Lead not found or you do not have access.</div>
 
-  if (!session || !session.user) {
-    return null
-  }
-
-  try {
-    await connectDB()
-    const lead = await Lead.findById(params.id)
-      .populate("assignedTo", "name email")
-      .populate("assignmentHistory.assignedTo", "name email")
-      .populate("assignmentHistory.assignedBy", "name email")
-      .populate("statusHistory.changedBy", "name email")
-
-    if (!lead) {
-      notFound()
-    }
-
-    // Check permissions - sales reps can only see their assigned leads
-    if (session.user.role === "sales_rep" && lead.assignedTo?._id?.toString() !== session.user.id) {
-      notFound()
-    }
-
-    return (
-      <div className="space-y-6">
-        <LeadDetail lead={lead.toObject()} userRole={session.user.role ?? ""} userId={session.user.id ?? ""} />
-      </div>
-    )
-  } catch (error) {
-    console.error("Error loading lead detail page:", error)
-    notFound()
-  }
+  return (
+    <div className="space-y-6">
+      <LeadDetail lead={lead} userRole={session.user.role ?? ""} userId={session.user.id ?? ""} />
+    </div>
+  )
 }

@@ -76,6 +76,10 @@ const leadSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      info: {
+        type: String,
+        default: "",
+      },
     },
   ],
   createdAt: {

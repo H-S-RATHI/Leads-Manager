@@ -18,35 +18,54 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
+    profilePhoto: user?.profilePhoto || "",
   })
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const form = new FormData()
+    form.append("file", file)
+    form.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "")
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: form,
+      })
+      const data = await res.json()
+      if (data.secure_url) {
+        setFormData((prev) => ({ ...prev, profilePhoto: data.secure_url }))
+        toast({ title: "Photo uploaded!", description: "Profile photo updated." })
+      } else {
+        throw new Error("Upload failed")
+      }
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to upload photo", variant: "destructive" })
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-
     try {
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
-
       if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Profile updated successfully",
-        })
+        toast({ title: "Success", description: "Profile updated successfully" })
       } else {
         throw new Error("Failed to update profile")
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "Failed to update profile", variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -62,13 +81,23 @@ export function ProfileForm({ user }: ProfileFormProps) {
         <CardContent>
           <div className="flex items-center space-x-4 mb-6">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.name} />
-              <AvatarFallback className="text-lg">{user?.name?.charAt(0)}</AvatarFallback>
+              <AvatarImage src={formData.profilePhoto || "/placeholder.svg"} alt={formData.name} />
+              <AvatarFallback className="text-lg">{formData.name?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <Button variant="outline" size="sm">
-                Change Photo
-              </Button>
+              <label htmlFor="profile-photo-upload">
+                <Button variant="outline" size="sm" asChild>
+                  <span>{uploading ? "Uploading..." : "Change Photo"}</span>
+                </Button>
+                <input
+                  id="profile-photo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoChange}
+                  disabled={uploading}
+                />
+              </label>
               <p className="text-sm text-gray-500 mt-1">JPG, GIF or PNG. 1MB max.</p>
             </div>
           </div>

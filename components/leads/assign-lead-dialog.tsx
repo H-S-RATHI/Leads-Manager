@@ -33,6 +33,7 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
   const { toast } = useToast()
 
   const requiresPassword = userRole === "sales_rep"
+  const canAssignToNew = lead.status === "New"
 
   useEffect(() => {
     if (open) {
@@ -68,7 +69,16 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
     if (!selectedUser) {
       toast({
         title: "Error",
-        description: "Please select a user to assign the lead to",
+        description: "Please select a user to assign the lead to or choose Unassign",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!canAssignToNew && lead.status !== "New" && selectedUser === "new") {
+      toast({
+        title: "Not Allowed",
+        description: "Cannot reassign to 'New' after status is 'Contacted' or beyond.",
         variant: "destructive",
       })
       return
@@ -89,7 +99,7 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          assignedTo: selectedUser,
+          assignedTo: selectedUser === "unassign" ? null : selectedUser,
           note,
           password: requiresPassword ? password : undefined,
         }),
@@ -143,6 +153,9 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
                 <SelectValue placeholder="Select a user" />
               </SelectTrigger>
               <SelectContent>
+                {(userRole === "admin" || userRole === "super_admin") && (
+                  <SelectItem value="unassign">Unassign (No one)</SelectItem>
+                )}
                 {users.map((user: any) => (
                   <SelectItem key={user._id} value={user._id}>
                     {user.name} ({user.role})
@@ -151,6 +164,9 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
               </SelectContent>
             </Select>
           </div>
+          {!canAssignToNew && (
+            <div className="text-xs text-red-500">Cannot reassign to 'New' after status is 'Contacted' or beyond.</div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="note">Assignment Note</Label>
