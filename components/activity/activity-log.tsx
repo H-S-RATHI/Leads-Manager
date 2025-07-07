@@ -82,11 +82,17 @@ export function ActivityLog() {
                     <span className="text-sm text-gray-500">{activity.user ? activity.user.name : "System"}</span>
                   </div>
                   <p className="text-sm text-gray-600">{formatDate(activity.createdAt)}</p>
-                  {activity.details && Object.keys(activity.details).length > 0 && (
+                  {/* Custom rendering for lead_assigned */}
+                  {activity.action === "lead_assigned" && activity.details?.assignedToUser ? (
+                    <div className="mt-2 text-xs text-gray-700">
+                      Assigned to <b>{activity.details.assignedToUser.name}</b>
+                      {activity.user ? <> by <b>{activity.user.name}</b></> : null}
+                    </div>
+                  ) : activity.details && Object.keys(activity.details).length > 0 ? (
                     <div className="mt-2 text-xs text-gray-500">
                       <pre className="whitespace-pre-wrap">{JSON.stringify(activity.details, null, 2)}</pre>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </CardContent>

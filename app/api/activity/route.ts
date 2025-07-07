@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongodb"
 import { Activity } from "@/lib/models/Activity"
+import { User } from "@/lib/models/User"
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,8 +25,22 @@ export async function GET(request: NextRequest) {
       Activity.countDocuments(),
     ])
 
+    const enhancedActivities = await Promise.all(activities.map(async (activity) => {
+      if (activity.action === "lead_assigned" && activity.details?.assignedTo) {
+        const assignedToUser = await User.findById(activity.details.assignedTo).select("name email")
+        return {
+          ...activity.toObject(),
+          details: {
+            ...activity.details,
+            assignedToUser: assignedToUser ? { name: assignedToUser.name, email: assignedToUser.email, _id: assignedToUser._id } : null,
+          },
+        }
+      }
+      return activity
+    }))
+
     return NextResponse.json({
-      activities,
+      activities: enhancedActivities,
       total,
       page,
       totalPages: Math.ceil(total / limit),

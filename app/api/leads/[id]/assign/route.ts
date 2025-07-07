@@ -70,7 +70,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     })
 
     // Populate and return updated lead
-    await lead.populate("assignedTo", "name email")
+    await lead.populate([
+      { path: "assignedTo", select: "name email" },
+      { path: "assignmentHistory.assignedTo", select: "name email" },
+      { path: "assignmentHistory.assignedBy", select: "name email" }
+    ])
 
     return NextResponse.json(lead)
   } catch (error) {
