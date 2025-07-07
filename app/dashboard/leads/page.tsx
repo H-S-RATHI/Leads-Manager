@@ -8,9 +8,6 @@ export default async function LeadsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Leads</h1>
-      </div>
 
       <LeadsFilters />
       <LeadsTable userRole={session?.user?.role || ""} userId={session?.user?.id || ""} />

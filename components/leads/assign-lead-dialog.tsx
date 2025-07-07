@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface AssignLeadDialogProps {
   lead: any
@@ -31,6 +32,7 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const requiresPassword = userRole === "sales_rep"
 
@@ -106,6 +108,7 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
       if (response.ok) {
         const updatedLead = await response.json()
         onUpdate(updatedLead)
+        await queryClient.invalidateQueries({ queryKey: ["activity-log"] })
         setOpen(false)
         setSelectedUser("")
         setNote("")

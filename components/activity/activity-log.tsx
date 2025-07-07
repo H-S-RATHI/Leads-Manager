@@ -1,46 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-
-interface Activity {
-  _id: string
-  user: {
-    name: string
-    email: string
-  } | null
-  action: string
-  details: any
-  createdAt: string
-}
+import { useActivityLog, Activity } from "@/hooks/use-activity-log"
 
 export function ActivityLog() {
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-
-  useEffect(() => {
-    fetchActivities()
-  }, [currentPage])
-
-  const fetchActivities = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/activity?page=${currentPage}&limit=20`)
-      if (response.ok) {
-        const data = await response.json()
-        setActivities(data.activities)
-        setTotalPages(data.totalPages)
-      }
-    } catch (error) {
-      console.error("Failed to fetch activities:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { data, isLoading, error } = useActivityLog(currentPage)
+  const activities = data?.activities || []
+  const totalPages = data?.totalPages || 1
 
   const getActionColor = (action: string) => {
     switch (action) {
@@ -78,7 +48,7 @@ export function ActivityLog() {
     return d.toLocaleString('en-US', options)
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         {[...Array(10)].map((_, i) => (
@@ -95,10 +65,14 @@ export function ActivityLog() {
     )
   }
 
+  if (error) {
+    return <div className="text-red-500">Failed to load activities.</div>
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        {activities.map((activity) => (
+        {activities.map((activity: Activity) => (
           <Card key={activity._id}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between">

@@ -8,10 +8,6 @@ export default async function FeedPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Company Feed</h1>
-        <p className="text-gray-600">Share updates with your team</p>
-      </div>
 
       <CreatePost />
       <FeedPosts />

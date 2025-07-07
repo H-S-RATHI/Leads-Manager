@@ -16,10 +16,13 @@ class PersistentCache {
   }
 
   private constructor() {
-    this.loadFromStorage()
+    if (typeof window !== 'undefined') {
+      this.loadFromStorage()
+    }
   }
 
   private loadFromStorage() {
+    if (typeof window === 'undefined') return
     try {
       const stored = localStorage.getItem('app-cache')
       if (stored) {
@@ -33,6 +36,7 @@ class PersistentCache {
   }
 
   private saveToStorage() {
+    if (typeof window === 'undefined') return
     try {
       const obj = Object.fromEntries(this.cache)
       localStorage.setItem('app-cache', JSON.stringify(obj))
@@ -79,7 +83,9 @@ class PersistentCache {
 
   clear(): void {
     this.cache.clear()
-    localStorage.removeItem('app-cache')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('app-cache')
+    }
   }
 
   getKeys(): string[] {

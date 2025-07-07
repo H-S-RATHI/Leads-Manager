@@ -68,9 +68,6 @@ export function LeadsFilters() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Filters</CardTitle>
-      </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
