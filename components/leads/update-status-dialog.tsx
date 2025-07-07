@@ -14,6 +14,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface UpdateStatusDialogProps {
   lead: any
@@ -25,19 +26,53 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
   const [info, setInfo] = useState("")
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
-  const statuses = ["New", "Contacted", "Qualified", "Purchased"]
-  const canSetToNew = lead.status === "New"
+  // Allow current status and all forward statuses
+  const getAllowedStatuses = (current: string) => {
+    switch (current) {
+      case "New":
+        return ["Contacted"]
+      case "Contacted":
+        return ["Contacted", "Qualified", "Purchased"]
+      case "Qualified":
+        return ["Qualified", "Purchased"]
+      case "Purchased":
+        return ["Purchased"]
+      default:
+        return []
+    }
+  }
+
+  const allowedStatuses = getAllowedStatuses(lead.status)
+  const canUpdate = allowedStatuses.length > 0
+
+  // When dialog opens, default dropdown to current status
+  const handleDialogOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen)
+    if (isOpen) {
+      setStatus(lead.status)
+      setInfo("")
+    }
+  }
 
   const handleUpdateStatus = async () => {
-    if (status === lead.status) {
-      setOpen(false)
-      return
-    }
     if (!info.trim()) {
       toast({
         title: "Info Required",
         description: "Please provide information about this status update.",
+        variant: "destructive",
+      })
+      return
+    }
+    // Prevent backward transitions
+    const statusOrder = ["New", "Contacted", "Qualified", "Purchased"]
+    const currentIdx = statusOrder.indexOf(lead.status)
+    const nextIdx = statusOrder.indexOf(status)
+    if (nextIdx < currentIdx) {
+      toast({
+        title: "Invalid Status",
+        description: "You cannot move status backward.",
         variant: "destructive",
       })
       return
@@ -49,10 +84,10 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, info }),
       })
-
+      console.log("Status update response:", response)
       if (response.ok) {
-        const { useQueryClient } = await import("@tanstack/react-query")
-        const queryClient = useQueryClient()
+        const data = await response.json()
+        console.log("Status update data:", data)
         await queryClient.invalidateQueries({ queryKey: ["lead", lead._id] })
         setOpen(false)
         setInfo("")
@@ -61,14 +96,21 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
           description: "Lead status updated successfully",
         })
       } else {
-        const error = await response.json()
+        let error
+        try {
+          error = await response.json()
+        } catch (e) {
+          error = { message: "Failed to parse error response", raw: e }
+        }
+        console.log("Status update error:", error)
         toast({
           title: "Error",
-          description: error.error || "Failed to update status",
+          description: error.error || error.message || "Failed to update status",
           variant: "destructive",
         })
       }
     } catch (error) {
+      console.error("Status update exception:", error)
       toast({
         title: "Error",
         description: "An error occurred while updating the status",
@@ -80,9 +122,9 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
-        <Button>Update Status</Button>
+        <Button disabled={!canUpdate}>Update Status</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -92,20 +134,21 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {statuses.map((s) => (
-                  (s !== "New" || canSetToNew) ? (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ) : null
+                {allowedStatuses.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {!canUpdate && (
+              <div className="text-sm text-gray-500 mt-2">No further status changes allowed.</div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
@@ -123,7 +166,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleUpdateStatus} disabled={loading}>
+          <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate}>
             {loading ? "Updating..." : "Update Status"}
           </Button>
         </DialogFooter>
