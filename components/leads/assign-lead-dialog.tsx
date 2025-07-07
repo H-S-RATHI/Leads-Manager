@@ -108,6 +108,7 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
         }
         await queryClient.invalidateQueries({ queryKey: ["lead", lead._id] })
         await queryClient.invalidateQueries({ queryKey: ["activity-log"] })
+        await queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] })
         setOpen(false)
         setSelectedUsers([])
         setNote("")

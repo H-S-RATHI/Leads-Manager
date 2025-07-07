@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongodb"
 import { Lead } from "@/lib/models/Lead"
 import { User } from "@/lib/models/User"
+import mongoose from "mongoose"
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +18,12 @@ export async function GET(request: NextRequest) {
     // Build query based on user role - sales reps only see their assigned leads
     const leadQuery: any = {}
     if (session.user.role === "sales_rep") {
-      leadQuery.assignedTo = session.user.id
+      leadQuery.assignedTo = { $in: [new mongoose.Types.ObjectId(session.user.id)] }
+      console.log('session.user.id:', session.user.id, typeof session.user.id);
+      const sampleLead = await Lead.findOne();
+      console.log('Sample lead assignedTo:', sampleLead?.assignedTo);
+      const matchingLeads = await Lead.find(leadQuery);
+      console.log('Matching leads for sales rep:', matchingLeads.length);
     }
 
     const [totalLeads, newLeads, totalUsers, purchasedLeads] = await Promise.all([

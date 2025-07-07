@@ -20,7 +20,7 @@ export function useDashboardStats() {
   }
 
   return useQuery({
-    ...createPersistentQuery(queryKey, fetchStats, 3 * 60 * 1000), // 3 minutes cache
-    staleTime: 60 * 1000, // 1 minute
+    ...createPersistentQuery(queryKey, fetchStats, 0), // No persistent cache
+    staleTime: 0, // Always stale
   })
 } 
