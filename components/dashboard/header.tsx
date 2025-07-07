@@ -10,6 +10,8 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
+  console.log('[Header] Render: user.image =', user?.image);
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 px-4 py-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center">

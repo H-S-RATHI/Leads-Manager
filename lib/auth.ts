@@ -37,6 +37,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             image: user.profilePhoto,
+            profilePhoto: user.profilePhoto,
           }
         } catch (error) {
           console.error("Auth error:", error)
@@ -52,8 +53,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role
-        token.image = user.image
+        token.image = (user as any).profilePhoto || user.image
       }
+      console.log('[NextAuth][jwt] token:', token, 'user:', user);
       return token
     },
     async session({ session, token }) {
@@ -62,11 +64,11 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as string
         session.user.image = token.image as string
       }
+      console.log('[NextAuth][session] session:', session, 'token:', token);
       return session
     },
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
   },
 }

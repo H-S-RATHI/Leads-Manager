@@ -24,7 +24,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     // Check permissions - sales reps can only see their assigned leads
-    if (session.user.role === "sales_rep" && lead.assignedTo?._id?.toString() !== session.user.id) {
+    if (
+      session.user.role === "sales_rep" &&
+      !lead.assignedTo.some((u: any) => u._id?.toString() === session.user.id)
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 

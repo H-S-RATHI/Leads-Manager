@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
-import { getSession } from "next-auth/react"
+import { getSession, signIn } from "next-auth/react"
 
 interface ProfileFormProps {
   user: any
@@ -22,6 +22,8 @@ export function ProfileForm({ user, onProfileUpdated }: ProfileFormProps) {
     email: user?.email || "",
     profilePhoto: user?.profilePhoto || "",
   })
+  // Log profile photo on render
+  console.log('[ProfileForm] Render: profilePhoto =', formData.profilePhoto);
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
@@ -39,9 +41,13 @@ export function ProfileForm({ user, onProfileUpdated }: ProfileFormProps) {
         body: form,
       })
       const data = await res.json()
+      console.log('[ProfileForm] Cloudinary upload response:', data);
       if (data.secure_url) {
         setFormData((prev) => ({ ...prev, profilePhoto: data.secure_url }))
+        console.log('[ProfileForm] Set profilePhoto to', data.secure_url);
         toast({ title: "Photo uploaded!", description: "Profile photo updated." })
+        // Automatically submit the profile update with the new photo
+        await handleSubmitAuto({ ...formData, profilePhoto: data.secure_url });
       } else {
         throw new Error("Upload failed")
       }
@@ -52,18 +58,47 @@ export function ProfileForm({ user, onProfileUpdated }: ProfileFormProps) {
     }
   }
 
+  // Helper to submit profile update automatically after photo upload
+  const handleSubmitAuto = async (autoFormData: typeof formData) => {
+    setLoading(true)
+    try {
+      console.log('[ProfileForm] Auto-submitting profile update:', autoFormData);
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(autoFormData),
+      })
+      const responseData = await response.json();
+      console.log('[ProfileForm] Auto profile update response:', responseData);
+      if (response.ok) {
+        toast({ title: "Success", description: "Profile updated successfully" })
+        setFormData(autoFormData); // Update local state so UI updates everywhere
+        if (onProfileUpdated) onProfileUpdated()
+      } else {
+        throw new Error("Failed to update profile")
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update profile", variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
+      console.log('[ProfileForm] Submitting profile update:', formData);
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
+      const responseData = await response.json();
+      console.log('[ProfileForm] Profile update response:', responseData);
       if (response.ok) {
         toast({ title: "Success", description: "Profile updated successfully" })
-        await getSession()
+        await signIn(undefined, { redirect: false })
         if (onProfileUpdated) onProfileUpdated()
       } else {
         throw new Error("Failed to update profile")

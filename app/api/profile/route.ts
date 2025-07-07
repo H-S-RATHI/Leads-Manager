@@ -12,6 +12,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { name, email, profilePhoto } = await request.json()
+    console.log('[API /api/profile] PUT received:', { name, email, profilePhoto });
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 })
@@ -34,6 +35,7 @@ export async function PUT(request: NextRequest) {
       { name, email, updatedAt: new Date(), ...(profilePhoto && { profilePhoto }) },
       { new: true },
     ).select("-password")
+    console.log('[API /api/profile] PUT updated user:', updatedUser);
 
     return NextResponse.json(updatedUser)
   } catch (error) {
@@ -53,6 +55,7 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
+    console.log('[API /api/profile] Returning user:', user);
     return NextResponse.json(user)
   } catch (error) {
     console.error("Error fetching user profile:", error)
