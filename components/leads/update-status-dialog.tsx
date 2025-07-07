@@ -17,10 +17,9 @@ import { useToast } from "@/hooks/use-toast"
 
 interface UpdateStatusDialogProps {
   lead: any
-  onUpdate: (lead: any) => void
 }
 
-export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) {
+export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState(lead.status)
   const [info, setInfo] = useState("")
@@ -52,8 +51,9 @@ export function UpdateStatusDialog({ lead, onUpdate }: UpdateStatusDialogProps) 
       })
 
       if (response.ok) {
-        const updatedLead = await response.json()
-        onUpdate(updatedLead)
+        const { useQueryClient } = await import("@tanstack/react-query")
+        const queryClient = useQueryClient()
+        await queryClient.invalidateQueries({ queryKey: ["lead", lead._id] })
         setOpen(false)
         setInfo("")
         toast({

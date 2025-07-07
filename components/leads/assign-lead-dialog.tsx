@@ -20,11 +20,10 @@ import { useQueryClient } from "@tanstack/react-query"
 
 interface AssignLeadDialogProps {
   lead: any
-  onUpdate: (lead: any) => void
   userRole: string
 }
 
-export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogProps) {
+export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
   const [open, setOpen] = useState(false)
   const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState("")
@@ -106,8 +105,7 @@ export function AssignLeadDialog({ lead, onUpdate, userRole }: AssignLeadDialogP
       })
 
       if (response.ok) {
-        const updatedLead = await response.json()
-        onUpdate(updatedLead)
+        await queryClient.invalidateQueries({ queryKey: ["lead", lead._id] })
         await queryClient.invalidateQueries({ queryKey: ["activity-log"] })
         setOpen(false)
         setSelectedUser("")

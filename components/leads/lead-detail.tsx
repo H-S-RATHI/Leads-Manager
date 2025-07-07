@@ -29,8 +29,6 @@ const formatDate = (date: Date | string) => {
 }
 
 export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
-  const [currentLead, setCurrentLead] = useState(lead)
-
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "new":
@@ -49,7 +47,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
   const canAssignLead = () => {
     return (
       ["super_admin", "admin"].includes(userRole) ||
-      (userRole === "sales_rep" && currentLead.assignedTo?._id === userId)
+      (userRole === "sales_rep" && lead.assignedTo?._id === userId)
     )
   }
 
@@ -58,12 +56,12 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold truncate">{currentLead.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold truncate">{lead.name}</h1>
           <p className="text-gray-600 text-sm sm:text-base">Lead Details</p>
         </div>
         <div className="flex flex-row gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-          {canAssignLead() && <AssignLeadDialog lead={currentLead} onUpdate={setCurrentLead} userRole={userRole} />}
-          <UpdateStatusDialog lead={currentLead} onUpdate={setCurrentLead} />
+          {canAssignLead() && <AssignLeadDialog lead={lead} userRole={userRole} />}
+          <UpdateStatusDialog lead={lead} />
         </div>
       </div>
 
@@ -80,15 +78,15 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-3">
               <Mail className="h-4 w-4 text-gray-500 flex-shrink-0" />
-              <a href={`mailto:${currentLead.email}`} className="text-blue-600 hover:underline break-all">
-                {currentLead.email}
+              <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline break-all">
+                {lead.email}
               </a>
             </div>
-            {currentLead.phone && (
+            {lead.phone && (
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                <a href={`tel:${currentLead.phone}`} className="text-blue-600 hover:underline">
-                  {currentLead.phone}
+                <a href={`tel:${lead.phone}`} className="text-blue-600 hover:underline">
+                  {lead.phone}
                 </a>
               </div>
             )}
@@ -106,35 +104,35 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Status:</span>
-              <Badge className={getStatusColor(currentLead.status)}>{currentLead.status}</Badge>
+              <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Assigned To:</span>
-              <span className="text-sm">{currentLead.assignedTo ? currentLead.assignedTo.name : "Unassigned"}</span>
+              <span className="text-sm">{lead.assignedTo ? lead.assignedTo.name : "Unassigned"}</span>
             </div>
-            {currentLead.budget && (
+            {lead.budget && (
               <div className="flex items-center justify-between">
                 <span className="font-medium">Budget:</span>
-                <span className="text-sm">${currentLead.budget.toLocaleString()}</span>
+                <span className="text-sm">${lead.budget.toLocaleString()}</span>
               </div>
             )}
-            {currentLead.plotSize && (
+            {lead.plotSize && (
               <div className="flex items-center justify-between">
                 <span className="font-medium">Plot Size:</span>
-                <span className="text-sm">{currentLead.plotSize}</span>
+                <span className="text-sm">{lead.plotSize}</span>
               </div>
             )}
-            {currentLead.city && (
+            {lead.city && (
               <div className="flex items-center justify-between">
                 <span className="font-medium">City:</span>
-                <span className="text-sm">📍 {currentLead.city}</span>
+                <span className="text-sm">📍 {lead.city}</span>
               </div>
             )}
             <div className="flex items-center justify-between">
               <span className="font-medium">Created:</span>
               <span className="text-sm flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                {formatDate(currentLead.createdAt)}
+                {formatDate(lead.createdAt)}
               </span>
             </div>
           </CardContent>
@@ -148,9 +146,9 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
           <CardDescription>Track all interactions with this lead</CardDescription>
         </CardHeader>
         <CardContent>
-          {currentLead.assignmentHistory && currentLead.assignmentHistory.length > 0 ? (
+          {lead.assignmentHistory && lead.assignmentHistory.length > 0 ? (
             <div className="space-y-4">
-              {currentLead.assignmentHistory.map((assignment: any, index: number) => (
+              {lead.assignmentHistory.map((assignment: any, index: number) => (
                 <div key={index} className="border-l-2 border-blue-200 pl-4 pb-4">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 bg-blue-500 rounded-full -ml-5"></div>
@@ -183,9 +181,9 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
           <CardDescription>All status changes for this lead</CardDescription>
         </CardHeader>
         <CardContent>
-          {currentLead.statusHistory && currentLead.statusHistory.length > 0 ? (
+          {lead.statusHistory && lead.statusHistory.length > 0 ? (
             <div className="space-y-4">
-              {currentLead.statusHistory.map((statusItem: any, index: number) => (
+              {lead.statusHistory.map((statusItem: any, index: number) => (
                 <div key={index} className="border-l-2 border-green-200 pl-4 pb-4">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full -ml-5"></div>

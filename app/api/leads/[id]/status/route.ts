@@ -93,7 +93,33 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       // Don't fail the status update if conversion tracking fails
     }
 
-    return NextResponse.json(lead)
+    const populatedLead = await Lead.findById(lead._id)
+      .populate([
+        { path: "assignedTo", select: "name email" },
+        { path: "assignmentHistory.assignedTo", select: "name email" },
+        { path: "assignmentHistory.assignedBy", select: "name email" },
+        { path: "statusHistory.changedBy", select: "name email" }
+      ])
+
+    // Debug log the statusHistory array
+    if (populatedLead && Array.isArray(populatedLead.statusHistory)) {
+      console.log("[DEBUG] statusHistory before manual fix:", JSON.stringify(populatedLead.statusHistory, null, 2))
+      // Manually populate the last entry if needed
+      const last = populatedLead.statusHistory[populatedLead.statusHistory.length - 1]
+      if (last && (typeof last.changedBy === "string" || (last.changedBy && !last.changedBy.name))) {
+        // Fetch user manually
+        const { User } = await import("@/lib/models/User")
+        const user = await User.findById(last.changedBy)
+        if (user) {
+          last.changedBy = { _id: user._id, name: user.name, email: user.email }
+          console.log("[DEBUG] Manually populated last changedBy:", last.changedBy)
+        } else {
+          console.warn("[DEBUG] Could not manually populate last changedBy, user not found:", last.changedBy)
+        }
+      }
+    }
+
+    return NextResponse.json(populatedLead)
   } catch (error) {
     console.error("Error updating lead status:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
