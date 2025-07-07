@@ -117,7 +117,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     )}
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-xs text-gray-500">
-                        {lead.assignedTo ? lead.assignedTo.name : "Unassigned"}
+                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
                       </span>
                       {lead.formName && (
                         <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
@@ -171,7 +171,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                         <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {lead.assignedTo ? lead.assignedTo.name : "Unassigned"}
+                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
                       </TableCell>
                       <TableCell className="hidden xl:table-cell">
                         {new Date(lead.createdAt).toLocaleDateString()}

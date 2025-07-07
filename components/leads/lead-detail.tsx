@@ -108,7 +108,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Assigned To:</span>
-              <span className="text-sm">{lead.assignedTo ? lead.assignedTo.name : "Unassigned"}</span>
+              <span className="text-sm">{Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}</span>
             </div>
             {lead.budget && (
               <div className="flex items-center justify-between">
@@ -152,18 +152,42 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
                 <div key={index} className="border-l-2 border-blue-200 pl-4 pb-4">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 bg-blue-500 rounded-full -ml-5"></div>
-                    <span className="font-medium text-sm">Lead Assigned</span>
+                    <span className="font-medium text-sm">
+                      {assignment.action === "unassigned" ? "Lead Unassigned" : "Lead Assigned"}
+                    </span>
                     <span className="text-xs text-gray-500">{formatDate(assignment.assignedAt)}</span>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Assigned to <strong>{assignment.assignedTo?.name}</strong>
-                    {assignment.assignedBy && (
-                      <span>
-                        {" "}
-                        by <strong>{assignment.assignedBy.name}</strong>
-                      </span>
-                    )}
-                  </p>
+                  {assignment.action === "unassigned" ? (
+                    <p className="text-sm text-gray-600">
+                      Unassigned from <strong>{
+                        typeof assignment.unassignedFrom === "object" && assignment.unassignedFrom?.name
+                          ? assignment.unassignedFrom.name
+                          : typeof assignment.unassignedFrom === "string"
+                            ? (() => {
+                                const prev = lead.assignmentHistory
+                                  .slice(0, index)
+                                  .reverse()
+                                  .find((a: any) => a.assignedTo && a.assignedTo._id === assignment.unassignedFrom);
+                                return prev ? prev.assignedTo.name : "Unknown";
+                              })()
+                            : "Unknown"
+                      }</strong>
+                      {assignment.assignedBy && (
+                        <span>
+                          {" "}by <strong>{assignment.assignedBy.name}</strong>
+                        </span>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-600">
+                      Assigned to <strong>{assignment.assignedTo?.name}</strong>
+                      {assignment.assignedBy && (
+                        <span>
+                          {" "}by <strong>{assignment.assignedBy.name}</strong>
+                        </span>
+                      )}
+                    </p>
+                  )}
                   {assignment.note && <p className="text-sm text-gray-500 mt-1 italic">"{assignment.note}"</p>}
                 </div>
               ))}

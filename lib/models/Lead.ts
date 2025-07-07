@@ -43,11 +43,10 @@ const leadSchema = new mongoose.Schema({
     enum: ["New", "Contacted", "Qualified", "Purchased"],
     default: "New",
   },
-  assignedTo: {
+  assignedTo: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    default: null,
-  },
+  }],
   assignmentHistory: [
     {
       assignedTo: {
@@ -62,6 +61,16 @@ const leadSchema = new mongoose.Schema({
       assignedAt: {
         type: Date,
         default: Date.now,
+      },
+      action: {
+        type: String,
+        enum: ["assigned", "unassigned"],
+        default: "assigned",
+      },
+      unassignedFrom: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
       },
     },
   ],
