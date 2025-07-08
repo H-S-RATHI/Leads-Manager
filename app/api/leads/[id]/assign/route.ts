@@ -119,6 +119,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     // Assign users
     for (const userId of assign) {
       if (!lead.assignedTo.some((id: any) => id.toString() === userId)) {
+        console.log('Assigning userId:', userId, 'to lead:', lead._id);
         lead.assignedTo.push(userId)
         lead.assignmentHistory.push({
           assignedTo: userId,
@@ -141,9 +142,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     lead.updatedAt = new Date()
+    console.log('About to save lead:', lead._id, 'assignedTo:', lead.assignedTo, 'assignmentHistory:', lead.assignmentHistory)
     await lead.save()
-    console.log('assignedTo after save:', lead.assignedTo)
-
+    console.log('Lead saved successfully:', lead._id)
     // Re-query and populate after save to ensure all nested fields are populated
     const populatedLead = await Lead.findById(lead._id)
       .populate([
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         { path: "assignmentHistory.assignedBy", select: "name email" },
         { path: "assignmentHistory.unassignedFrom", select: "name email" },
       ])
+    console.log('Populated lead after save:', JSON.stringify(populatedLead, null, 2))
 
     // Manual fallback for assignmentHistory.unassignedFrom
     for (const assignment of populatedLead.assignmentHistory) {

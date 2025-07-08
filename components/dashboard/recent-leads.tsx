@@ -66,7 +66,7 @@ export function RecentLeads() {
                   >
                     {lead.name}
                   </Link>
-                  <p className="text-sm text-gray-500 truncate">{lead.email}</p>
+                  <p className="text-sm text-gray-500 truncate">{lead.email || 'No email'}</p>
                   <p className="text-xs text-gray-400">{new Date(lead.createdAt).toLocaleDateString()}</p>
                 </div>
                 <Badge variant="status" className={getStatusColor(lead.status)}>{lead.status}</Badge>

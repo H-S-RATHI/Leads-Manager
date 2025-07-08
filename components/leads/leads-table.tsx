@@ -102,7 +102,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                       <h3 className="font-medium text-sm">{lead.name}</h3>
                       <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
                     </div>
-                    <p className="text-sm text-gray-600">{lead.email}</p>
+                    <p className="text-sm text-gray-600">{lead.email || 'No email'}</p>
                     {lead.phone && (
                       <a
                         href={`tel:${lead.phone}`}
@@ -151,7 +151,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   {leads.map((lead) => (
                     <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}>
                       <TableCell className="font-medium">{lead.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{lead.email}</TableCell>
+                      <TableCell className="hidden md:table-cell">{lead.email || 'No email'}</TableCell>
                       <TableCell>
                         {lead.phone && (
                           <a
