@@ -11,10 +11,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useQueryClient } from "@tanstack/react-query"
+import { useMediaQuery } from "@/hooks/use-mobile"
 
 interface UpdateStatusDialogProps {
   lead: any
@@ -27,6 +37,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Allow current status and all forward statuses
   const getAllowedStatuses = (current: string) => {
@@ -121,54 +132,90 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
     }
   }
 
+  const formContent = (
+    <>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label>Status</Label>
+          <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {allowedStatuses.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!canUpdate && (
+            <div className="text-sm text-gray-500 mt-2">No further status changes allowed.</div>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
+          <textarea
+            id="status-info"
+            className="w-full border rounded p-2 min-h-[80px] resize-none"
+            placeholder="Describe what response you received or any important info..."
+            value={info}
+            onChange={e => setInfo(e.target.value)}
+            required
+          />
+        </div>
+      </div>
+    </>
+  )
+
+  const footerContent = (
+    <>
+      <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
+        Cancel
+      </Button>
+      <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate} className="w-full sm:w-auto">
+        {loading ? "Updating..." : "Update Status"}
+      </Button>
+    </>
+  )
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={handleDialogOpenChange}>
+        <SheetTrigger asChild>
+          <Button disabled={!canUpdate}>Update Status</Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Update Lead Status</SheetTitle>
+            <SheetDescription>Change the status of this lead. This will trigger conversion tracking.</SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto py-4">
+            {formContent}
+          </div>
+          <SheetFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            {footerContent}
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button disabled={!canUpdate}>Update Status</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0">
+      <DialogContent className="sm:max-w-[425px] p-0 max-h-[90vh] overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>Update Lead Status</DialogTitle>
           <DialogDescription>Change the status of this lead. This will trigger conversion tracking.</DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[70vh] md:max-h-[60vh] px-6 pb-2 flex flex-col gap-4">
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {allowedStatuses.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {!canUpdate && (
-              <div className="text-sm text-gray-500 mt-2">No further status changes allowed.</div>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
-            <textarea
-              id="status-info"
-              className="w-full border rounded p-2 min-h-[80px] resize-none"
-              placeholder="Describe what response you received or any important info..."
-              value={info}
-              onChange={e => setInfo(e.target.value)}
-              required
-            />
-          </div>
+        <div className="overflow-y-auto max-h-[60vh] px-6 pb-2">
+          {formContent}
         </div>
         <DialogFooter className="px-6 pb-6 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
-            Cancel
-          </Button>
-          <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate} className="w-full sm:w-auto">
-            {loading ? "Updating..." : "Update Status"}
-          </Button>
+          {footerContent}
         </DialogFooter>
       </DialogContent>
     </Dialog>

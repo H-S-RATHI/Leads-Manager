@@ -104,7 +104,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Status:</span>
-              <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
+              <Badge variant="status" className={getStatusColor(lead.status)}>{lead.status}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Assigned To:</span>

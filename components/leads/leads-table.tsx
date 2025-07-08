@@ -100,7 +100,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium text-sm">{lead.name}</h3>
-                      <Badge className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                      <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
                     </div>
                     <p className="text-sm text-gray-600">{lead.email}</p>
                     {lead.phone && (
@@ -168,7 +168,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                         {lead.city || "-"}
                       </TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
+                        <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}

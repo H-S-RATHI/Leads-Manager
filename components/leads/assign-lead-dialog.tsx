@@ -11,12 +11,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { useQueryClient } from "@tanstack/react-query"
 import Select from 'react-select'
+import { useMediaQuery } from "@/hooks/use-mobile"
 
 interface AssignLeadDialogProps {
   lead: any
@@ -32,6 +42,7 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Only show for admin/super_admin
   if (!(userRole === "admin" || userRole === "super_admin")) return null
@@ -137,74 +148,112 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
     }
   }
 
+  const formContent = (
+    <>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label>Action</Label>
+          <div className="flex gap-4">
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                name="action"
+                value="assign"
+                checked={action === 'assign'}
+                onChange={() => { setAction('assign'); setSelectedUsers([]) }}
+                className="accent-blue-600"
+              /> Assign
+            </label>
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                name="action"
+                value="unassign"
+                checked={action === 'unassign'}
+                onChange={() => { setAction('unassign'); setSelectedUsers([]) }}
+                className="accent-red-600"
+              /> Unassign
+            </label>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>{action === 'assign' ? 'Assign To' : 'Unassign From'}</Label>
+          <Select
+            isMulti
+            options={userOptions}
+            value={userOptions.filter(opt => selectedUsers.includes(opt.value))}
+            onChange={opts => setSelectedUsers(opts.map((opt: any) => opt.value))}
+            classNamePrefix="react-select"
+            placeholder={`Select user(s) to ${action}`}
+            styles={{ menu: (provided) => ({ ...provided, zIndex: 9999 }) }}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="note">Note</Label>
+          <Textarea
+            id="note"
+            placeholder="Add a note about this assignment..."
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="resize-none min-h-[80px]"
+          />
+        </div>
+      </div>
+    </>
+  )
+
+  const footerContent = (
+    <>
+      <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
+        Cancel
+      </Button>
+      <Button onClick={handleSubmit} disabled={loading} className="w-full sm:w-auto">
+        {loading ? (action === 'assign' ? 'Assigning...' : 'Unassigning...') : (action === 'assign' ? 'Assign' : 'Unassign')}
+      </Button>
+    </>
+  )
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="outline">Assign/Unassign</Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Assign/Unassign Lead</SheetTitle>
+            <SheetDescription>
+              Assign or unassign this lead to one or more team members. Add an optional note.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto py-4">
+            {formContent}
+          </div>
+          <SheetFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            {footerContent}
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Assign/Unassign</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0">
+      <DialogContent className="sm:max-w-[425px] p-0 max-h-[90vh] overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>Assign/Unassign Lead</DialogTitle>
           <DialogDescription>
             Assign or unassign this lead to one or more team members. Add an optional note.
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[70vh] md:max-h-[60vh] px-6 pb-2 flex flex-col gap-4">
-          <div className="space-y-2">
-            <Label>Action</Label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-1 cursor-pointer">
-                <input
-                  type="radio"
-                  name="action"
-                  value="assign"
-                  checked={action === 'assign'}
-                  onChange={() => { setAction('assign'); setSelectedUsers([]) }}
-                  className="accent-blue-600"
-                /> Assign
-              </label>
-              <label className="flex items-center gap-1 cursor-pointer">
-                <input
-                  type="radio"
-                  name="action"
-                  value="unassign"
-                  checked={action === 'unassign'}
-                  onChange={() => { setAction('unassign'); setSelectedUsers([]) }}
-                  className="accent-red-600"
-                /> Unassign
-              </label>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>{action === 'assign' ? 'Assign To' : 'Unassign From'}</Label>
-            <Select
-              isMulti
-              options={userOptions}
-              value={userOptions.filter(opt => selectedUsers.includes(opt.value))}
-              onChange={opts => setSelectedUsers(opts.map((opt: any) => opt.value))}
-              classNamePrefix="react-select"
-              placeholder={`Select user(s) to ${action}`}
-              styles={{ menu: (provided) => ({ ...provided, zIndex: 9999 }) }}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="note">Note</Label>
-            <Textarea
-              id="note"
-              placeholder="Add a note about this assignment..."
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="resize-none min-h-[80px]"
-            />
-          </div>
+        <div className="overflow-y-auto max-h-[60vh] px-6 pb-2">
+          {formContent}
         </div>
         <DialogFooter className="px-6 pb-6 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={loading} className="w-full sm:w-auto">
-            {loading ? (action === 'assign' ? 'Assigning...' : 'Unassigning...') : (action === 'assign' ? 'Assign' : 'Unassign')}
-          </Button>
+          {footerContent}
         </DialogFooter>
       </DialogContent>
     </Dialog>
