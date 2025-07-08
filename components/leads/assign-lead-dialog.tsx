@@ -149,7 +149,7 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
             Assign or unassign this lead to one or more team members. Add an optional note.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="overflow-y-auto max-h-[70vh] grid gap-4 py-4">
           <div className="space-y-2">
             <Label>Action</Label>
             <div className="flex gap-4">

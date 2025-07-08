@@ -131,7 +131,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
           <DialogTitle>Update Lead Status</DialogTitle>
           <DialogDescription>Change the status of this lead. This will trigger conversion tracking.</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="overflow-y-auto max-h-[70vh] grid gap-4 py-4">
           <div className="space-y-2">
             <Label>Status</Label>
             <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
