@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -38,6 +38,31 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const isMobile = useMediaQuery("(max-width: 768px)")
+  const [mobileSheetHeight, setMobileSheetHeight] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    if (isMobile && open) {
+      // Try to use dvh if supported, else fallback to JS
+      const test = document.createElement('div')
+      test.style.height = '100dvh'
+      document.body.appendChild(test)
+      const supportsDvh = test.offsetHeight !== 0
+      document.body.removeChild(test)
+      if (supportsDvh) {
+        setMobileSheetHeight('70dvh')
+      } else {
+        setMobileSheetHeight(`${Math.round(window.innerHeight * 0.7)}px`)
+      }
+      // Listen for resize (keyboard open/close)
+      const handleResize = () => {
+        setMobileSheetHeight(`${Math.round(window.innerHeight * 0.7)}px`)
+      }
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
+    } else {
+      setMobileSheetHeight(undefined)
+    }
+  }, [isMobile, open])
 
   // Allow current status and all forward statuses
   const getAllowedStatuses = (current: string) => {
@@ -185,7 +210,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
         <SheetTrigger asChild>
           <Button disabled={!canUpdate}>Update Status</Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
+        <SheetContent side="bottom" style={mobileSheetHeight ? { maxHeight: mobileSheetHeight, height: mobileSheetHeight } : {}} className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Update Lead Status</SheetTitle>
             <SheetDescription>Change the status of this lead. This will trigger conversion tracking.</SheetDescription>
