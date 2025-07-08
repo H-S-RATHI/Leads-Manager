@@ -93,6 +93,14 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
   }
 
   const handleUpdateStatus = async () => {
+    if (lead.status === "New" && status === "New") {
+      toast({
+        title: "Invalid Update",
+        description: "You must select 'Contacted' to update the status for the first time.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!info.trim()) {
       toast({
         title: "Info Required",
