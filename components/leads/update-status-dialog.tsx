@@ -204,42 +204,20 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
     </>
   )
 
-  if (isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={handleDialogOpenChange}>
-        <SheetTrigger asChild>
-          <Button disabled={!canUpdate}>Update Status</Button>
-        </SheetTrigger>
-        <SheetContent side="bottom" style={mobileSheetHeight ? { maxHeight: mobileSheetHeight, height: mobileSheetHeight } : {}} className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Update Lead Status</SheetTitle>
-            <SheetDescription>Change the status of this lead. This will trigger conversion tracking.</SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto py-4">
-            {formContent}
-          </div>
-          <SheetFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            {footerContent}
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    )
-  }
-
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button disabled={!canUpdate}>Update Status</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0 max-h-[90vh] overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2">
+      <DialogContent className="w-full max-w-sm mx-auto rounded-2xl p-0 overflow-y-auto">
+        <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle>Update Lead Status</DialogTitle>
           <DialogDescription>Change the status of this lead. This will trigger conversion tracking.</DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[60vh] px-6 pb-2">
+        <div className="px-4 pb-2">
           {formContent}
         </div>
-        <DialogFooter className="px-6 pb-6 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <DialogFooter className="bg-white px-4 pb-4 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end z-10 border-t">
           {footerContent}
         </DialogFooter>
       </DialogContent>

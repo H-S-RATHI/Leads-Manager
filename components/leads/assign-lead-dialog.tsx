@@ -11,22 +11,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { useQueryClient } from "@tanstack/react-query"
 import Select from 'react-select'
-import { useMediaQuery } from "@/hooks/use-mobile"
 
 interface AssignLeadDialogProps {
   lead: any
@@ -42,8 +32,6 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  const isMobile = useMediaQuery("(max-width: 768px)")
-  const [mobileSheetHeight, setMobileSheetHeight] = useState<string | undefined>(undefined);
 
   // Only show for admin/super_admin
   if (!(userRole === "admin" || userRole === "super_admin")) return null
@@ -54,30 +42,6 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
       setSelectedUsers([]); // Reset selection on open
     }
   }, [open, lead.assignedTo])
-
-  useEffect(() => {
-    if (isMobile && open) {
-      // Try to use dvh if supported, else fallback to JS
-      const test = document.createElement('div');
-      test.style.height = '100dvh';
-      document.body.appendChild(test);
-      const supportsDvh = test.offsetHeight !== 0;
-      document.body.removeChild(test);
-      if (supportsDvh) {
-        setMobileSheetHeight('70dvh');
-      } else {
-        setMobileSheetHeight(`${Math.round(window.innerHeight * 0.7)}px`);
-      }
-      // Listen for resize (keyboard open/close)
-      const handleResize = () => {
-        setMobileSheetHeight(`${Math.round(window.innerHeight * 0.7)}px`);
-      };
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    } else {
-      setMobileSheetHeight(undefined);
-    }
-  }, [isMobile, open]);
 
   const fetchUsers = async () => {
     try {
@@ -238,46 +202,22 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
     </>
   )
 
-  if (isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline">Assign/Unassign</Button>
-        </SheetTrigger>
-        <SheetContent side="bottom" style={mobileSheetHeight ? { maxHeight: mobileSheetHeight, height: mobileSheetHeight } : {}} className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Assign/Unassign Lead</SheetTitle>
-            <SheetDescription>
-              Assign or unassign this lead to one or more team members. Add an optional note.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto py-4">
-            {formContent}
-          </div>
-          <SheetFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            {footerContent}
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    )
-  }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Assign/Unassign</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0 max-h-[90vh] overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2">
+      <DialogContent className="w-full max-w-sm mx-auto rounded-2xl p-0 overflow-y-auto">
+        <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle>Assign/Unassign Lead</DialogTitle>
           <DialogDescription>
             Assign or unassign this lead to one or more team members. Add an optional note.
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[60vh] px-6 pb-2">
+        <div className="px-4 pb-2">
           {formContent}
         </div>
-        <DialogFooter className="px-6 pb-6 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <DialogFooter className="bg-white px-4 pb-4 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end z-10 border-t">
           {footerContent}
         </DialogFooter>
       </DialogContent>
