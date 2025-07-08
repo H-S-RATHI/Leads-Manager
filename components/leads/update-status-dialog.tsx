@@ -172,7 +172,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
           <Label>Status</Label>
           <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>{status}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {allowedStatuses.map((s) => (
