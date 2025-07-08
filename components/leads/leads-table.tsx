@@ -106,6 +106,8 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     {lead.phone && (
                       <a
                         href={`tel:${lead.phone}`}
+                        rel="noopener noreferrer"
+                        target="_self"
                         className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
                       >
                         <Phone className="h-3 w-3" />
@@ -156,6 +158,8 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                         {lead.phone && (
                           <a
                             href={`tel:${lead.phone}`}
+                            rel="noopener noreferrer"
+                            target="_self"
                             className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
                             onClick={(e) => e.stopPropagation()}
                           >

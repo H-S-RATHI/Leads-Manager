@@ -89,7 +89,7 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
             {lead.phone && (
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                <a href={`tel:${lead.phone}`} className="text-blue-600 hover:underline">
+                <a href={`tel:${lead.phone}`} className="text-blue-600 hover:underline break-all" rel="noopener noreferrer" target="_self">
                   {lead.phone}
                 </a>
               </div>
