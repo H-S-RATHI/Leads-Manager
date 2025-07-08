@@ -105,7 +105,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     <p className="text-sm text-gray-600">{lead.email || 'No email'}</p>
                     {lead.phone && (
                       <a
-                        href={`tel:${lead.phone}`}
+                        href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
                         rel="noopener noreferrer"
                         target="_self"
                         className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
@@ -157,11 +157,10 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                       <TableCell>
                         {lead.phone && (
                           <a
-                            href={`tel:${lead.phone}`}
+                            href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
                             rel="noopener noreferrer"
                             target="_self"
                             className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
-                            onClick={(e) => e.stopPropagation()}
                           >
                             <Phone className="h-4 w-4" />
                             <span className="hidden sm:inline">{lead.phone}</span>
