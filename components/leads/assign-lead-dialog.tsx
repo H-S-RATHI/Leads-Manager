@@ -142,33 +142,35 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
       <DialogTrigger asChild>
         <Button variant="outline">Assign/Unassign</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>Assign/Unassign Lead</DialogTitle>
           <DialogDescription>
             Assign or unassign this lead to one or more team members. Add an optional note.
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[70vh] grid gap-4 py-4">
+        <div className="overflow-y-auto max-h-[70vh] md:max-h-[60vh] px-6 pb-2 flex flex-col gap-4">
           <div className="space-y-2">
             <Label>Action</Label>
             <div className="flex gap-4">
-              <label>
+              <label className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="radio"
                   name="action"
                   value="assign"
                   checked={action === 'assign'}
                   onChange={() => { setAction('assign'); setSelectedUsers([]) }}
+                  className="accent-blue-600"
                 /> Assign
               </label>
-              <label>
+              <label className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="radio"
                   name="action"
                   value="unassign"
                   checked={action === 'unassign'}
                   onChange={() => { setAction('unassign'); setSelectedUsers([]) }}
+                  className="accent-red-600"
                 /> Unassign
               </label>
             </div>
@@ -192,14 +194,15 @@ export function AssignLeadDialog({ lead, userRole }: AssignLeadDialogProps) {
               placeholder="Add a note about this assignment..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
+              className="resize-none min-h-[80px]"
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <DialogFooter className="px-6 pb-6 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={loading}>
+          <Button onClick={handleSubmit} disabled={loading} className="w-full sm:w-auto">
             {loading ? (action === 'assign' ? 'Assigning...' : 'Unassigning...') : (action === 'assign' ? 'Assign' : 'Unassign')}
           </Button>
         </DialogFooter>

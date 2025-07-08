@@ -126,12 +126,12 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
       <DialogTrigger asChild>
         <Button disabled={!canUpdate}>Update Status</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>Update Lead Status</DialogTitle>
           <DialogDescription>Change the status of this lead. This will trigger conversion tracking.</DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[70vh] grid gap-4 py-4">
+        <div className="overflow-y-auto max-h-[70vh] md:max-h-[60vh] px-6 pb-2 flex flex-col gap-4">
           <div className="space-y-2">
             <Label>Status</Label>
             <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
@@ -154,7 +154,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
             <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
             <textarea
               id="status-info"
-              className="w-full border rounded p-2 min-h-[60px]"
+              className="w-full border rounded p-2 min-h-[80px] resize-none"
               placeholder="Describe what response you received or any important info..."
               value={info}
               onChange={e => setInfo(e.target.value)}
@@ -162,11 +162,11 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <DialogFooter className="px-6 pb-6 pt-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate}>
+          <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate} className="w-full sm:w-auto">
             {loading ? "Updating..." : "Update Status"}
           </Button>
         </DialogFooter>
