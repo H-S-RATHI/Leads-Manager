@@ -101,21 +101,6 @@ export default function SignInPage() {
             </Link>
           </div>
 
-          {/* Demo credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs font-medium text-gray-700 mb-2">Demo Credentials:</p>
-            <div className="space-y-1 text-xs text-gray-600">
-              <p>
-                <strong>Super Admin:</strong> {process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || "superadmin@crm.com"}
-              </p>
-              <p>
-                <strong>Admin:</strong> {process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@crm.com"}
-              </p>
-              <p>
-                <strong>Password:</strong> Use the passwords set in your .env file
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
