@@ -96,7 +96,9 @@ export function useLeadsInfinite(
         if (!response.ok) {
           throw new Error("Failed to fetch leads")
         }
-        return response.json() as Promise<LeadsResponse>
+        const json = await response.json();
+        console.log('API /api/leads response', json);
+        return json as LeadsResponse;
       },
       getNextPageParam: (lastPage: LeadsResponse) => {
         if (!lastPage) return undefined

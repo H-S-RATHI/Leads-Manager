@@ -58,41 +58,22 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
     return filterObj
   }, [searchParams, userRole])
 
+  // Use useLeadsInfinite for infinite scroll
   const {
     data,
-    isLoading: loading,
+    isLoading,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     refetch,
   } = useLeadsInfinite(10, filters, userRole, userId)
-
-  // Merge all loaded leads
-  const leads = ((data as unknown) as InfiniteData<LeadsResponse>)?.pages.flatMap((page) => page.leads) || []
-
-  // New: derive selectAll from selectedLeads and leads
-  const allSelected = leads.length > 0 && selectedLeads.length === leads.length
-
-  // Handle select all
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedLeads(leads.map((lead) => lead._id))
-    } else {
-      setSelectedLeads([])
-    }
-  }
-
-  // Handle individual select
-  const handleSelectLead = (leadId: string) => {
-    setSelectedLeads((prev) =>
-      prev.includes(leadId) ? prev.filter((id) => id !== leadId) : [...prev, leadId]
-    )
-  }
+  const leads = (data as InfiniteData<LeadsResponse> | undefined)?.pages?.flatMap((page) => page.leads) || []
 
   // Infinite scroll logic
   const loaderRef = useRef<HTMLDivElement | null>(null)
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const target = entries[0]
+    console.log('Observer fired', { isIntersecting: target.isIntersecting, hasNextPage, isFetchingNextPage })
     if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
       fetchNextPage()
     }
@@ -110,6 +91,25 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
       if (loaderRef.current) observer.unobserve(loaderRef.current)
     }
   }, [handleObserver])
+
+  // New: derive selectAll from selectedLeads and leads
+  const allSelected = leads.length > 0 && selectedLeads.length === leads.length
+
+  // Handle select all
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedLeads(leads.map((lead: Lead) => lead._id))
+    } else {
+      setSelectedLeads([])
+    }
+  }
+
+  // Handle individual select
+  const handleSelectLead = (leadId: string) => {
+    setSelectedLeads((prev) =>
+      prev.includes(leadId) ? prev.filter((id) => id !== leadId) : [...prev, leadId]
+    )
+  }
 
   // Fetch users for assign dialog
   useEffect(() => {
@@ -198,7 +198,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
   // Bulk action bar (visible if any leads are selected)
   const showBulkBar = selectedLeads.length > 0 && (userRole === "admin" || userRole === "super_admin")
 
-  if (loading && !data) {
+  if (isLoading && !data) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -366,8 +366,21 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
               {isFetchingNextPage && (
                 <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
               )}
+              {hasNextPage && !isFetchingNextPage && (
+                <div className="text-center py-2">
+                  <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
+                    Load More
+                  </Button>
+                </div>
+              )}
               {!hasNextPage && leads.length > 0 && (
                 <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
+              )}
+              {isLoading && leads.length === 0 && (
+                <div className="text-center py-2 text-gray-500 text-sm">Loading leads...</div>
+              )}
+              {!leads.length && !isLoading && (
+                <div className="text-center py-2 text-gray-400 text-xs">No leads found</div>
               )}
             </div>
           </div>
@@ -444,8 +457,21 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
               {isFetchingNextPage && (
                 <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
               )}
+              {hasNextPage && !isFetchingNextPage && (
+                <div className="text-center py-2">
+                  <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
+                    Load More
+                  </Button>
+                </div>
+              )}
               {!hasNextPage && leads.length > 0 && (
                 <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
+              )}
+              {isLoading && leads.length === 0 && (
+                <div className="text-center py-2 text-gray-500 text-sm">Loading leads...</div>
+              )}
+              {!leads.length && !isLoading && (
+                <div className="text-center py-2 text-gray-400 text-xs">No leads found</div>
               )}
             </div>
           </div>
