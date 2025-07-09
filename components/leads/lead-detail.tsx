@@ -79,9 +79,9 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
             <div className="flex items-center space-x-3">
               <Mail className="h-4 w-4 text-gray-500 flex-shrink-0" />
               {lead.email ? (
-                <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline break-all">
-                  {lead.email}
-                </a>
+              <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline break-all">
+                {lead.email}
+              </a>
               ) : (
                 <span className="text-gray-400 italic">No email</span>
               )}
