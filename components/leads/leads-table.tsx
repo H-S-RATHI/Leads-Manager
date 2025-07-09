@@ -8,19 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Phone } from "lucide-react"
 import Link from "next/link"
-import { useLeads } from "@/hooks/use-leads"
-
-interface Lead {
-  _id: string
-  name: string
-  email: string
-  phone: string
-  city: string
-  status: string
-  assignedTo: any
-  createdAt: string
-  formName?: string
-}
+import { useLeadsInfinite, Lead, LeadsResponse } from "@/hooks/use-leads"
+import { useEffect, useRef, useCallback } from "react"
+import type { InfiniteData } from "@tanstack/react-query"
 
 interface LeadsTableProps {
   userRole: string
@@ -28,7 +18,6 @@ interface LeadsTableProps {
 }
 
 export function LeadsTable({ userRole, userId }: LeadsTableProps) {
-  const [currentPage, setCurrentPage] = useState(1)
   const searchParams = useSearchParams()
 
   // Extract filters from search params
@@ -44,15 +33,39 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
     return filterObj
   }, [searchParams, userRole])
 
-  const { data, isLoading: loading } = useLeads(currentPage, 10, filters, userRole, userId)
-  const leads = data?.leads || []
-  const totalPages = data?.totalPages || 1
+  const {
+    data,
+    isLoading: loading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useLeadsInfinite(10, filters, userRole, userId)
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage)
-    // Scroll to top when page changes
-    window.scrollTo({ top: 600, behavior: 'smooth' })
-  }
+  // Merge all loaded leads
+  const leads = ((data as unknown) as InfiniteData<LeadsResponse>)?.pages.flatMap((page) => page.leads) || []
+
+  // Infinite scroll logic
+  const loaderRef = useRef<HTMLDivElement | null>(null)
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0]
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
+
+  useEffect(() => {
+    const option = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.1,
+    }
+    const observer = new window.IntersectionObserver(handleObserver, option)
+    if (loaderRef.current) observer.observe(loaderRef.current)
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current)
+    }
+  }, [handleObserver])
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -69,7 +82,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
     }
   }
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -95,8 +108,8 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
           {/* Mobile view */}
           <div className="block sm:hidden">
             <div className="space-y-4 p-4">
-              {leads.map((lead) => (
-                <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}>
+              {leads.map((lead: Lead) => (
+                <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium text-sm">{lead.name}</h3>
@@ -131,6 +144,13 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   </div>
                 </Card>
               ))}
+              <div ref={loaderRef} />
+              {isFetchingNextPage && (
+                <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
+              )}
+              {!hasNextPage && leads.length > 0 && (
+                <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
+              )}
             </div>
           </div>
 
@@ -151,8 +171,8 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leads.map((lead) => (
-                    <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}>
+                  {leads.map((lead: Lead) => (
+                    <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
                       <TableCell className="font-medium">{lead.name}</TableCell>
                       <TableCell className="hidden md:table-cell">{lead.email || 'No email'}</TableCell>
                       <TableCell>
@@ -188,35 +208,17 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   ))}
                 </TableBody>
               </Table>
+              <div ref={loaderRef} />
+              {isFetchingNextPage && (
+                <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
+              )}
+              {!hasNextPage && leads.length > 0 && (
+                <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-gray-700">
-          Page {currentPage} of {totalPages}
-        </p>
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
     </div>
   )
 }

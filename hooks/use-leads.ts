@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useInfiniteQuery, QueryFunctionContext } from "@tanstack/react-query"
 import { createPersistentQuery } from "@/lib/query-client"
 
-interface Lead {
+export interface Lead {
   _id: string
   name: string
   email: string
@@ -13,7 +13,7 @@ interface Lead {
   formName?: string
 }
 
-interface LeadsResponse {
+export interface LeadsResponse {
   leads: Lead[]
   total: number
   page: number
@@ -62,4 +62,51 @@ export function useLeads(
     ...createPersistentQuery(queryKey, fetchLeads, 0), // No persistent cache
     staleTime: 0, // Always stale
   })
+}
+
+// Infinite scroll version
+export function useLeadsInfinite(
+  limit: number = 10,
+  filters: {
+    status?: string
+    assignedTo?: string
+    search?: string
+  } = {},
+  userRole?: string,
+  userId?: string
+) {
+  return useInfiniteQuery<LeadsResponse, Error, LeadsResponse, [string, number, typeof filters, string?, string?]>(
+    {
+      queryKey: ["leads-infinite", limit, filters, userRole, userId],
+      queryFn: async (context: QueryFunctionContext) => {
+        const pageParam = (context.pageParam as number) || 1
+        const params = new URLSearchParams()
+        params.set("page", pageParam.toString())
+        params.set("limit", limit.toString())
+        if (userRole === "sales_rep") {
+          params.set("assignedTo", userId || "")
+        }
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value && value !== "all") {
+            if (key === "assignedTo" && userRole === "sales_rep") return
+            params.set(key, value)
+          }
+        })
+        const response = await fetch(`/api/leads?${params.toString()}`)
+        if (!response.ok) {
+          throw new Error("Failed to fetch leads")
+        }
+        return response.json() as Promise<LeadsResponse>
+      },
+      getNextPageParam: (lastPage: LeadsResponse) => {
+        if (!lastPage) return undefined
+        if (lastPage.page < lastPage.totalPages) {
+          return lastPage.page + 1
+        }
+        return undefined
+      },
+      initialPageParam: 1,
+      staleTime: 0,
+    }
+  )
 } 
