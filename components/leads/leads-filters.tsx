@@ -84,7 +84,7 @@ export function LeadsFilters() {
         </div>
         <div className="relative">
           <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-            <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center rounded-full ${filters.status !== 'all' ? 'bg-black' : ''}`} aria-label="Status">
+            <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center ${filters.status !== 'all' ? 'bg-black' : ''}`} aria-label="Status">
               <FileText className={`h-5 w-5 ${filters.status !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
             </SelectTrigger>
             <SelectContent>
