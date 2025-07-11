@@ -103,7 +103,7 @@ export function LeadsFilters() {
               value={filters.assignedTo}
               onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
             >
-              <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center rounded-full ${filters.assignedTo !== 'all' ? 'bg-black' : ''}`} aria-label="Assigned To">
+              <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center ${filters.assignedTo !== 'all' ? 'bg-black' : ''}`} aria-label="Assigned To">
                 <User className={`h-5 w-5 ${filters.assignedTo !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
               </SelectTrigger>
               <SelectContent>
