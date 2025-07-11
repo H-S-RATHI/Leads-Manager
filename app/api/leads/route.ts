@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongodb"
 import { Lead } from "@/lib/models/Lead"
+import { randomUUID } from "crypto"
 
 export async function GET(request: NextRequest) {
   try {
@@ -61,6 +62,40 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error fetching leads:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    await connectDB()
+    const body = await request.json()
+    const {
+      name,
+      phone = null,
+      city = null,
+    } = body
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 })
+    }
+    const lead = await Lead.create({
+      formName: "CRM Leads Adding Form",
+      name,
+      phone,
+      city,
+      assignmentHistory: [],
+      statusHistory: [],
+      source: "website_form",
+      formId: randomUUID(),
+      leadgenId: randomUUID(),
+    })
+    return NextResponse.json(lead)
+  } catch (error) {
+    console.error("Error creating lead:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

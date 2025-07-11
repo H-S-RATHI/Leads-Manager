@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Select from 'react-select'
 import { useToast } from "@/hooks/use-toast"
+import { Input } from "@/components/ui/input"
 
 interface LeadsTableProps {
   userRole: string
@@ -44,6 +45,12 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
   const [status, setStatus] = useState<string>("")
   const [statusInfo, setStatusInfo] = useState("")
   const [statusLoading, setStatusLoading] = useState(false)
+
+  // Add lead dialog state
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  // Update addForm state and form fields
+  const [addForm, setAddForm] = useState({ name: "", phone: "", city: "" })
+  const [addLoading, setAddLoading] = useState(false)
 
   // Extract filters from search params
   const filters = useMemo(() => {
@@ -180,6 +187,26 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
     }
   }
 
+  const handleAddLead = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAddLoading(true)
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addForm),
+      })
+      if (!res.ok) throw new Error("Failed to add lead")
+      setAddDialogOpen(false)
+      setAddForm({ name: "", phone: "", city: "" })
+      refetch()
+    } catch (err) {
+      // Optionally show a toast
+    } finally {
+      setAddLoading(false)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "new":
@@ -216,6 +243,36 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
 
   return (
     <div className="space-y-4">
+      {/* Add Lead Button */}
+      <div className="flex justify-end">
+        <Button onClick={() => setAddDialogOpen(true)} variant="default">Add Lead</Button>
+      </div>
+      {/* Add Lead Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Lead Manually</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddLead} className="space-y-4">
+            <div>
+              <Label>Name</Label>
+              <Input value={addForm.name} onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))} required />
+            </div>
+            <div>
+              <Label>Phone</Label>
+              <Input value={addForm.phone} onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))} />
+            </div>
+            <div>
+              <Label>City</Label>
+              <Input value={addForm.city} onChange={e => setAddForm(f => ({ ...f, city: e.target.value }))} />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setAddDialogOpen(false)} disabled={addLoading}>Cancel</Button>
+              <Button type="submit" disabled={addLoading}>{addLoading ? "Adding..." : "Add Lead"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       {/* Bulk action bar */}
       {showBulkBar && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 bg-blue-50 border border-blue-200 rounded px-4 py-2 mb-2">
