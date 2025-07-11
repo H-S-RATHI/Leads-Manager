@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
+import { FileText, User, Search as SearchIcon } from "lucide-react"
 
 export function LeadsFilters() {
   const router = useRouter()
@@ -69,7 +70,61 @@ export function LeadsFilters() {
   return (
     <Card>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Mobile: compact row with icons */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <div className="relative flex-1">
+            <Input
+              id="search"
+              placeholder="Search..."
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              className="pl-9 pr-2 h-10"
+              aria-label="Search"
+            />
+            <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="relative">
+            <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
+              <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Status">
+                <FileText className="h-5 w-5 text-muted-foreground" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="New">New</SelectItem>
+                <SelectItem value="Contacted">Contacted</SelectItem>
+                <SelectItem value="Qualified">Qualified</SelectItem>
+                <SelectItem value="Purchased">Purchased</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Only show assignedTo filter for admin/super_admin */}
+          {!isSalesRep && (
+            <div className="relative">
+              <Select
+                value={filters.assignedTo}
+                onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
+              >
+                <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Assigned To">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All users</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {users.map((user: any) => (
+                    <SelectItem key={user._id} value={user._id}>
+                      {user.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <Button onClick={applyFilters} size="icon" className="h-10 w-10" aria-label="Apply Filters">
+            <SearchIcon className="h-5 w-5" />
+          </Button>
+        </div>
+        {/* Desktop/tablet: original layout */}
+        <div className="hidden sm:grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <Label htmlFor="search">Search</Label>
             <Input
@@ -79,7 +134,6 @@ export function LeadsFilters() {
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             />
           </div>
-
           <div className="space-y-2">
             <Label>Status</Label>
             <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
@@ -95,7 +149,6 @@ export function LeadsFilters() {
               </SelectContent>
             </Select>
           </div>
-
           {/* Only show assignedTo filter for admin/super_admin */}
           {!isSalesRep && (
             <div className="space-y-2">
@@ -119,7 +172,6 @@ export function LeadsFilters() {
               </Select>
             </div>
           )}
-
           <div className="flex items-end space-x-2">
             <Button onClick={applyFilters} className="flex-1 sm:flex-none">
               Apply
