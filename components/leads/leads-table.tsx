@@ -321,18 +321,20 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                 <label htmlFor="select-all-mobile" className="ml-2 text-sm">Select All</label>
               </div>
               {leads.map((lead: Lead) => (
-                <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow relative" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
-                  <Checkbox
-                    checked={selectedLeads.includes(lead._id)}
-                    onCheckedChange={() => handleSelectLead(lead._id)}
-                    className="absolute top-2 left-2 z-10"
-                    onClick={e => e.stopPropagation()}
-                  />
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
+                <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={selectedLeads.includes(lead._id)}
+                        onCheckedChange={() => handleSelectLead(lead._id)}
+                        className="mr-2"
+                        onClick={e => e.stopPropagation()}
+                      />
                       <h3 className="font-medium text-sm">{lead.name}</h3>
-                      <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
                     </div>
+                    <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                  </div>
+                  <div className="space-y-2 mt-2">
                     <p className="text-sm text-gray-600">{lead.email || 'No email'}</p>
                     {lead.phone && (
                       <a
