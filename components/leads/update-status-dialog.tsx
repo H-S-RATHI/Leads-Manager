@@ -63,7 +63,9 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
       case "New":
         return ["Contacted"]
       case "Contacted":
-        return ["Contacted", "Qualified", "Purchased"]
+        return ["Contacted", "Visited"]
+      case "Visited":
+        return ["Visited", "Qualified"]
       case "Qualified":
         return ["Qualified", "Purchased"]
       case "Purchased":
@@ -103,7 +105,7 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
       return
     }
     // Prevent backward transitions
-    const statusOrder = ["New", "Contacted", "Qualified", "Purchased"]
+    const statusOrder = ["New", "Contacted", "Visited", "Qualified", "Purchased"]
     const currentIdx = statusOrder.indexOf(lead.status)
     const nextIdx = statusOrder.indexOf(status)
     if (nextIdx < currentIdx) {

@@ -17,7 +17,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const status = body.status
     const info = body.info || ""
 
-    if (!["New", "Contacted", "Qualified", "Purchased"].includes(status)) {
+    if (!["New", "Contacted", "Visited", "Qualified", "Purchased"].includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 })
     }
 
