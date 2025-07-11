@@ -243,8 +243,16 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
 
   return (
     <div className="space-y-4">
-      {/* Add Lead Button */}
-      <div className="flex justify-end">
+      {/* Add Lead Button and Select All in one row */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center">
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={handleSelectAll}
+            id="select-all-mobile"
+          />
+          <label htmlFor="select-all-mobile" className="ml-2 text-sm">Select All</label>
+        </div>
         <Button onClick={() => setAddDialogOpen(true)} variant="default">Add Lead</Button>
       </div>
       {/* Add Lead Dialog */}
@@ -363,15 +371,6 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
       {/* Mobile view */}
       <div className="block sm:hidden">
         <div className="space-y-4 px-2 py-2">
-          {/* Select all for mobile */}
-          <div className="flex items-center mb-2">
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={handleSelectAll}
-              id="select-all-mobile"
-            />
-            <label htmlFor="select-all-mobile" className="ml-2 text-sm">Select All</label>
-          </div>
           {leads.map((lead: Lead) => {
             const latestStatusNote = lead.statusHistory && lead.statusHistory.length > 0
               ? lead.statusHistory[lead.statusHistory.length - 1].info
