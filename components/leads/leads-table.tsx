@@ -354,7 +354,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     <span className="text-xs text-gray-500">
                       {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
                     </span>
-                    {lead.formName && (
+                    {userRole !== "sales_rep" && lead.formName && (
                       <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
                         {lead.formName}
                       </span>
@@ -416,7 +416,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
                   <TableHead className="hidden xl:table-cell">Created</TableHead>
-                  <TableHead className="hidden lg:table-cell">Form</TableHead>
+                  {userRole !== "sales_rep" && <TableHead className="hidden lg:table-cell">Form</TableHead>}
                   <TableHead>Update Status</TableHead>
                   <TableHead className="hidden lg:table-cell">Latest Note</TableHead>
                 </TableRow>
@@ -463,9 +463,13 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                       <TableCell className="hidden xl:table-cell">
                         {new Date(lead.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {lead.formName || "-"}
-                      </TableCell>
+                      {userRole !== "sales_rep" && (
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                            {lead.formName || "-"}
+                          </span>
+                        </TableCell>
+                      )}
                       {/* Update Status Button */}
                       <TableCell>
                         <div onClick={e => e.stopPropagation()}>
