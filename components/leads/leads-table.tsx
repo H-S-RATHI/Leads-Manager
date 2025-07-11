@@ -315,50 +315,65 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
             />
             <label htmlFor="select-all-mobile" className="ml-2 text-sm">Select All</label>
           </div>
-          {leads.map((lead: Lead) => (
-            <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
-              <div className="flex justify-between items-start gap-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={selectedLeads.includes(lead._id)}
-                    onCheckedChange={() => handleSelectLead(lead._id)}
-                    className="mr-2"
-                    onClick={e => e.stopPropagation()}
-                  />
-                  <h3 className="font-medium text-sm">{lead.name}</h3>
+          {leads.map((lead: Lead) => {
+            const latestStatusNote = lead.statusHistory && lead.statusHistory.length > 0
+              ? lead.statusHistory[lead.statusHistory.length - 1].info
+              : null;
+            return (
+              <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedLeads.includes(lead._id)}
+                      onCheckedChange={() => handleSelectLead(lead._id)}
+                      className="mr-2"
+                      onClick={e => e.stopPropagation()}
+                    />
+                    <h3 className="font-medium text-sm">{lead.name}</h3>
+                  </div>
+                  <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
                 </div>
-                <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
-              </div>
-              <div className="space-y-2 mt-2">
-                <p className="text-sm text-gray-600">{lead.email || 'No email'}</p>
-                {lead.phone && (
-                  <a
-                    href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
-                    rel="noopener noreferrer"
-                    target="_self"
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <Phone className="h-3 w-3" />
-                    <span>{lead.phone}</span>
-                  </a>
-                )}
-                {lead.city && (
-                  <p className="text-sm text-gray-500">📍 {lead.city}</p>
-                )}
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-xs text-gray-500">
-                    {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
-                  </span>
-                  {lead.formName && (
-                    <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                      {lead.formName}
+                <div className="space-y-2 mt-2">
+                  {/* Removed email display */}
+                  {lead.phone && (
+                    <a
+                      href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
+                      rel="noopener noreferrer"
+                      target="_self"
+                      className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <Phone className="h-3 w-3" />
+                      <span>{lead.phone}</span>
+                    </a>
+                  )}
+                  {lead.city && (
+                    <p className="text-sm text-gray-500">📍 {lead.city}</p>
+                  )}
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-xs text-gray-500">
+                      {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
                     </span>
+                    {lead.formName && (
+                      <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        {lead.formName}
+                      </span>
+                    )}
+                  </div>
+                  {/* Update Status Button */}
+                  <div className="pt-2" onClick={e => e.stopPropagation()}>
+                    <UpdateStatusDialog lead={lead} onStatusUpdated={() => refetch()} />
+                  </div>
+                  {/* Latest Status Note */}
+                  {latestStatusNote && (
+                    <div className="pt-2 text-xs text-gray-700 italic border-t border-gray-100 mt-2">
+                      {latestStatusNote}
+                    </div>
                   )}
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
           <div ref={loaderRef} />
           {isFetchingNextPage && (
             <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
@@ -396,58 +411,76 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     />
                   </TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
-                  <TableHead>Phone</TableHead>
+                  <TableHead className="hidden lg:table-cell">Phone</TableHead>
                   <TableHead className="hidden lg:table-cell">City</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
                   <TableHead className="hidden xl:table-cell">Created</TableHead>
                   <TableHead className="hidden lg:table-cell">Form</TableHead>
+                  <TableHead>Update Status</TableHead>
+                  <TableHead className="hidden lg:table-cell">Latest Note</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leads.map((lead: Lead) => (
-                  <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedLeads.includes(lead._id)}
-                        onCheckedChange={() => handleSelectLead(lead._id)}
-                        onClick={e => e.stopPropagation()}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{lead.name}</TableCell>
-                    <TableCell className="hidden md:table-cell">{lead.email || 'No email'}</TableCell>
-                    <TableCell>
-                      {lead.phone && (
-                        <a
-                          href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
-                          rel="noopener noreferrer"
-                          target="_self"
-                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
+                {leads.map((lead: Lead) => {
+                  const latestStatusNote = lead.statusHistory && lead.statusHistory.length > 0
+                    ? lead.statusHistory[lead.statusHistory.length - 1].info
+                    : null;
+                  return (
+                    <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedLeads.includes(lead._id)}
+                          onCheckedChange={() => handleSelectLead(lead._id)}
                           onClick={e => e.stopPropagation()}
-                        >
-                          <Phone className="h-4 w-4" />
-                          <span className="hidden sm:inline">{lead.phone}</span>
-                        </a>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {lead.city || "-"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
-                    </TableCell>
-                    <TableCell className="hidden xl:table-cell">
-                      {new Date(lead.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {lead.formName || "-"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      {/* Removed email column */}
+                      <TableCell>
+                        {lead.phone && (
+                          <a
+                            href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
+                            rel="noopener noreferrer"
+                            target="_self"
+                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <Phone className="h-4 w-4" />
+                            <span className="hidden sm:inline">{lead.phone}</span>
+                          </a>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {lead.city || "-"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
+                      </TableCell>
+                      <TableCell className="hidden xl:table-cell">
+                        {new Date(lead.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {lead.formName || "-"}
+                      </TableCell>
+                      {/* Update Status Button */}
+                      <TableCell>
+                        <div onClick={e => e.stopPropagation()}>
+                          <UpdateStatusDialog lead={lead} onStatusUpdated={() => refetch()} />
+                        </div>
+                      </TableCell>
+                      {/* Latest Status Note */}
+                      <TableCell>
+                        {latestStatusNote && (
+                          <span className="text-xs text-gray-700 italic">{latestStatusNote}</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
             <div ref={loaderRef} />

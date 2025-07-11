@@ -20,9 +20,10 @@ import { useMediaQuery } from "@/hooks/use-mobile"
 
 interface UpdateStatusDialogProps {
   lead: any
+  onStatusUpdated?: () => void
 }
 
-export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
+export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialogProps) {
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState(lead.status)
   const [info, setInfo] = useState("")
@@ -131,6 +132,7 @@ export function UpdateStatusDialog({ lead }: UpdateStatusDialogProps) {
           title: "Success",
           description: "Lead status updated successfully",
         })
+        if (onStatusUpdated) onStatusUpdated();
       } else {
         let error
         try {

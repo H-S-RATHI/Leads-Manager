@@ -11,6 +11,7 @@ export interface Lead {
   assignedTo: any
   createdAt: string
   formName?: string
+  statusHistory?: { status: string; changedBy?: any; changedAt?: string; info?: string }[];
 }
 
 export interface LeadsResponse {
