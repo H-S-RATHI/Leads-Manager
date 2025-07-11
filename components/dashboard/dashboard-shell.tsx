@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { DesktopSidebar } from "./desktop-sidebar"
 import { Header } from "./header"
+import { MobileBottomNav } from "./mobile-bottom-nav";
 
 export function DashboardShell({ user, children }: { user: any; children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -16,6 +17,10 @@ export function DashboardShell({ user, children }: { user: any; children: React.
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
+      {/* Restore mobile bottom navigation for admin and sales_rep */}
+      {['admin', 'sales_rep'].includes(user.role) && (
+        <MobileBottomNav user={user} />
+      )}
     </div>
   )
 } 
