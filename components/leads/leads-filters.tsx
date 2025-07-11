@@ -68,120 +68,122 @@ export function LeadsFilters() {
   }
 
   return (
-    <Card>
-      <CardContent>
-        {/* Mobile: compact row with icons */}
-        <div className="flex items-center gap-2 sm:hidden">
-          <div className="relative flex-1">
-            <Input
-              id="search"
-              placeholder="Search..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="pl-9 pr-2 h-10"
-              aria-label="Search"
-            />
-            <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          </div>
+    <>
+      {/* Mobile: compact row with icons, no Card wrapper */}
+      <div className="flex items-center gap-2 sm:hidden px-2 py-2">
+        <div className="relative flex-1">
+          <Input
+            id="search"
+            placeholder="Search..."
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            className="pl-9 pr-2 h-10"
+            aria-label="Search"
+          />
+          <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        </div>
+        <div className="relative">
+          <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
+            <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Status">
+              <FileText className={`h-5 w-5 ${filters.status !== 'all' ? 'text-foreground' : 'text-muted-foreground'}`} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="New">New</SelectItem>
+              <SelectItem value="Contacted">Contacted</SelectItem>
+              <SelectItem value="Qualified">Qualified</SelectItem>
+              <SelectItem value="Purchased">Purchased</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Only show assignedTo filter for admin/super_admin */}
+        {!isSalesRep && (
           <div className="relative">
-            <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-              <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Status">
-                <FileText className="h-5 w-5 text-muted-foreground" />
+            <Select
+              value={filters.assignedTo}
+              onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
+            >
+              <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Assigned To">
+                <User className={`h-5 w-5 ${filters.assignedTo !== 'all' ? 'text-foreground' : 'text-muted-foreground'}`} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="New">New</SelectItem>
-                <SelectItem value="Contacted">Contacted</SelectItem>
-                <SelectItem value="Qualified">Qualified</SelectItem>
-                <SelectItem value="Purchased">Purchased</SelectItem>
+                <SelectItem value="all">All users</SelectItem>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {users.map((user: any) => (
+                  <SelectItem key={user._id} value={user._id}>
+                    {user.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
-          {/* Only show assignedTo filter for admin/super_admin */}
-          {!isSalesRep && (
-            <div className="relative">
-              <Select
-                value={filters.assignedTo}
-                onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
-              >
-                <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Assigned To">
-                  <User className="h-5 w-5 text-muted-foreground" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All users</SelectItem>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {users.map((user: any) => (
-                    <SelectItem key={user._id} value={user._id}>
-                      {user.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <Button onClick={applyFilters} size="icon" className="h-10 w-10" aria-label="Apply Filters">
-            <SearchIcon className="h-5 w-5" />
-          </Button>
-        </div>
-        {/* Desktop/tablet: original layout */}
-        <div className="hidden sm:grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search</Label>
-            <Input
-              id="search"
-              placeholder="Name or email..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="New">New</SelectItem>
-                <SelectItem value="Contacted">Contacted</SelectItem>
-                <SelectItem value="Qualified">Qualified</SelectItem>
-                <SelectItem value="Purchased">Purchased</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Only show assignedTo filter for admin/super_admin */}
-          {!isSalesRep && (
+        )}
+        <Button onClick={applyFilters} size="icon" className="h-10 w-10" aria-label="Apply Filters">
+          <SearchIcon className="h-5 w-5" />
+        </Button>
+      </div>
+      {/* Desktop/tablet: original layout */}
+      <Card className="hidden sm:block">
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <Label>Assigned To</Label>
-              <Select
-                value={filters.assignedTo}
-                onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
-              >
+              <Label htmlFor="search">Search</Label>
+              <Input
+                id="search"
+                placeholder="Name or email..."
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All users" />
+                  <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All users</SelectItem>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {users.map((user: any) => (
-                    <SelectItem key={user._id} value={user._id}>
-                      {user.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="New">New</SelectItem>
+                  <SelectItem value="Contacted">Contacted</SelectItem>
+                  <SelectItem value="Qualified">Qualified</SelectItem>
+                  <SelectItem value="Purchased">Purchased</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          )}
-          <div className="flex items-end space-x-2">
-            <Button onClick={applyFilters} className="flex-1 sm:flex-none">
-              Apply
-            </Button>
-            <Button variant="outline" onClick={clearFilters} className="flex-1 sm:flex-none bg-transparent">
-              Clear
-            </Button>
+            {/* Only show assignedTo filter for admin/super_admin */}
+            {!isSalesRep && (
+              <div className="space-y-2">
+                <Label>Assigned To</Label>
+                <Select
+                  value={filters.assignedTo}
+                  onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All users" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All users</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {users.map((user: any) => (
+                      <SelectItem key={user._id} value={user._id}>
+                        {user.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="flex items-end space-x-2">
+              <Button onClick={applyFilters} className="flex-1 sm:flex-none">
+                Apply
+              </Button>
+              <Button variant="outline" onClick={clearFilters} className="flex-1 sm:flex-none bg-transparent">
+                Clear
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   )
 }
