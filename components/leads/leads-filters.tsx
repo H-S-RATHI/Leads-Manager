@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { FileText, User, Search as SearchIcon } from "lucide-react"
+import { FileText, User, Search as SearchIcon, ChevronDown } from "lucide-react"
 
 export function LeadsFilters() {
   const router = useRouter()
@@ -84,8 +84,15 @@ export function LeadsFilters() {
         </div>
         <div className="relative">
           <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-            <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center ${filters.status !== 'all' ? 'bg-black' : ''}`} aria-label="Status">
+            <SelectTrigger
+              className={`w-10 h-10 p-0 flex items-center justify-center relative hide-default-arrow ${filters.status !== 'all' ? 'bg-black' : ''}`}
+              aria-label="Status"
+            >
               <FileText className={`h-5 w-5 ${filters.status !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
+              {/* Custom arrow color for active filter */}
+              <span className="absolute right-2">
+                <ChevronDown className={`h-4 w-4 ${filters.status !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
@@ -103,8 +110,15 @@ export function LeadsFilters() {
               value={filters.assignedTo}
               onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
             >
-              <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center ${filters.assignedTo !== 'all' ? 'bg-black' : ''}`} aria-label="Assigned To">
+              <SelectTrigger
+                className={`w-10 h-10 p-0 flex items-center justify-center relative hide-default-arrow ${filters.assignedTo !== 'all' ? 'bg-black' : ''}`}
+                aria-label="Assigned To"
+              >
                 <User className={`h-5 w-5 ${filters.assignedTo !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
+                {/* Custom arrow color for active filter */}
+                <span className="absolute right-2">
+                  <ChevronDown className={`h-4 w-4 ${filters.assignedTo !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
+                </span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All users</SelectItem>
@@ -184,6 +198,11 @@ export function LeadsFilters() {
           </div>
         </CardContent>
       </Card>
+      <style jsx global>{`
+  .hide-default-arrow .lucide-chevron-down {
+    display: none !important;
+  }
+`}</style>
     </>
   )
 }
