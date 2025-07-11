@@ -351,9 +351,11 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     <p className="text-sm text-gray-500">📍 {lead.city}</p>
                   )}
                   <div className="flex justify-between items-center pt-2">
-                    <span className="text-xs text-gray-500">
-                      {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
-                    </span>
+                    {userRole !== "sales_rep" && (
+                      <span className="text-xs text-gray-500">
+                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
+                      </span>
+                    )}
                     {userRole !== "sales_rep" && lead.formName && (
                       <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
                         {lead.formName}
@@ -414,7 +416,7 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                   <TableHead className="hidden lg:table-cell">Phone</TableHead>
                   <TableHead className="hidden lg:table-cell">City</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
+                  {userRole !== "sales_rep" && <TableHead className="hidden lg:table-cell">Assigned To</TableHead>}
                   <TableHead className="hidden xl:table-cell">Created</TableHead>
                   {userRole !== "sales_rep" && <TableHead className="hidden lg:table-cell">Form</TableHead>}
                   <TableHead>Update Status</TableHead>
@@ -457,9 +459,11 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                       <TableCell>
                         <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
-                      </TableCell>
+                      {userRole !== "sales_rep" && (
+                        <TableCell className="hidden lg:table-cell">
+                          {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
+                        </TableCell>
+                      )}
                       <TableCell className="hidden xl:table-cell">
                         {new Date(lead.createdAt).toLocaleDateString()}
                       </TableCell>
