@@ -303,179 +303,173 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg">{userRole === "sales_rep" ? "My Assigned Leads" : "All Leads"}</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {/* Mobile view */}
-          <div className="block sm:hidden">
-            <div className="space-y-4 p-4">
-              {/* Select all for mobile */}
-              <div className="flex items-center mb-2">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={handleSelectAll}
-                  id="select-all-mobile"
-                />
-                <label htmlFor="select-all-mobile" className="ml-2 text-sm">Select All</label>
+      {/* Mobile view */}
+      <div className="block sm:hidden">
+        <div className="space-y-4 px-2 py-2">
+          {/* Select all for mobile */}
+          <div className="flex items-center mb-2">
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={handleSelectAll}
+              id="select-all-mobile"
+            />
+            <label htmlFor="select-all-mobile" className="ml-2 text-sm">Select All</label>
+          </div>
+          {leads.map((lead: Lead) => (
+            <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedLeads.includes(lead._id)}
+                    onCheckedChange={() => handleSelectLead(lead._id)}
+                    className="mr-2"
+                    onClick={e => e.stopPropagation()}
+                  />
+                  <h3 className="font-medium text-sm">{lead.name}</h3>
+                </div>
+                <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
               </div>
-              {leads.map((lead: Lead) => (
-                <Card key={lead._id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="flex items-center gap-2">
+              <div className="space-y-2 mt-2">
+                <p className="text-sm text-gray-600">{lead.email || 'No email'}</p>
+                {lead.phone && (
+                  <a
+                    href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
+                    rel="noopener noreferrer"
+                    target="_self"
+                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <Phone className="h-3 w-3" />
+                    <span>{lead.phone}</span>
+                  </a>
+                )}
+                {lead.city && (
+                  <p className="text-sm text-gray-500">📍 {lead.city}</p>
+                )}
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-xs text-gray-500">
+                    {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
+                  </span>
+                  {lead.formName && (
+                    <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                      {lead.formName}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+          <div ref={loaderRef} />
+          {isFetchingNextPage && (
+            <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
+          )}
+          {hasNextPage && !isFetchingNextPage && (
+            <div className="text-center py-2">
+              <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
+                Load More
+              </Button>
+            </div>
+          )}
+          {!hasNextPage && leads.length > 0 && (
+            <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
+          )}
+          {isLoading && leads.length === 0 && (
+            <div className="text-center py-2 text-gray-500 text-sm">Loading leads...</div>
+          )}
+          {!leads.length && !isLoading && (
+            <div className="text-center py-2 text-gray-400 text-xs">No leads found</div>
+          )}
+        </div>
+      </div>
+      {/* Desktop view */}
+      <Card className="hidden sm:block">
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={handleSelectAll}
+                      id="select-all-desktop"
+                    />
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead className="hidden lg:table-cell">City</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
+                  <TableHead className="hidden xl:table-cell">Created</TableHead>
+                  <TableHead className="hidden lg:table-cell">Form</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leads.map((lead: Lead) => (
+                  <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
+                    <TableCell>
                       <Checkbox
                         checked={selectedLeads.includes(lead._id)}
                         onCheckedChange={() => handleSelectLead(lead._id)}
-                        className="mr-2"
                         onClick={e => e.stopPropagation()}
                       />
-                      <h3 className="font-medium text-sm">{lead.name}</h3>
-                    </div>
-                    <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
-                  </div>
-                  <div className="space-y-2 mt-2">
-                    <p className="text-sm text-gray-600">{lead.email || 'No email'}</p>
-                    {lead.phone && (
-                      <a
-                        href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
-                        rel="noopener noreferrer"
-                        target="_self"
-                        className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <Phone className="h-3 w-3" />
-                        <span>{lead.phone}</span>
-                      </a>
-                    )}
-                    {lead.city && (
-                      <p className="text-sm text-gray-500">📍 {lead.city}</p>
-                    )}
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="text-xs text-gray-500">
-                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
-                      </span>
-                      {lead.formName && (
-                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                          {lead.formName}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              <div ref={loaderRef} />
-              {isFetchingNextPage && (
-                <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
-              )}
-              {hasNextPage && !isFetchingNextPage && (
-                <div className="text-center py-2">
-                  <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
-                    Load More
-                  </Button>
-                </div>
-              )}
-              {!hasNextPage && leads.length > 0 && (
-                <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
-              )}
-              {isLoading && leads.length === 0 && (
-                <div className="text-center py-2 text-gray-500 text-sm">Loading leads...</div>
-              )}
-              {!leads.length && !isLoading && (
-                <div className="text-center py-2 text-gray-400 text-xs">No leads found</div>
-              )}
-            </div>
-          </div>
-
-          {/* Desktop view */}
-          <div className="hidden sm:block">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      <Checkbox
-                        checked={allSelected}
-                        onCheckedChange={handleSelectAll}
-                        id="select-all-desktop"
-                      />
-                    </TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead className="hidden lg:table-cell">City</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
-                    <TableHead className="hidden xl:table-cell">Created</TableHead>
-                    <TableHead className="hidden lg:table-cell">Form</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {leads.map((lead: Lead) => (
-                    <TableRow key={lead._id} className="cursor-pointer hover:bg-gray-50" onClick={() => window.location.href = `/dashboard/leads/${lead._id}`}> 
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedLeads.includes(lead._id)}
-                          onCheckedChange={() => handleSelectLead(lead._id)}
+                    </TableCell>
+                    <TableCell className="font-medium">{lead.name}</TableCell>
+                    <TableCell className="hidden md:table-cell">{lead.email || 'No email'}</TableCell>
+                    <TableCell>
+                      {lead.phone && (
+                        <a
+                          href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
+                          rel="noopener noreferrer"
+                          target="_self"
+                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
                           onClick={e => e.stopPropagation()}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">{lead.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{lead.email || 'No email'}</TableCell>
-                      <TableCell>
-                        {lead.phone && (
-                          <a
-                            href={`tel:${lead.phone.replace(/[^0-9+]/g, '')}`}
-                            rel="noopener noreferrer"
-                            target="_self"
-                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <Phone className="h-4 w-4" />
-                            <span className="hidden sm:inline">{lead.phone}</span>
-                          </a>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {lead.city || "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
-                      </TableCell>
-                      <TableCell className="hidden xl:table-cell">
-                        {new Date(lead.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {lead.formName || "-"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div ref={loaderRef} />
-              {isFetchingNextPage && (
-                <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
-              )}
-              {hasNextPage && !isFetchingNextPage && (
-                <div className="text-center py-2">
-                  <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
-                    Load More
-                  </Button>
-                </div>
-              )}
-              {!hasNextPage && leads.length > 0 && (
-                <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
-              )}
-              {isLoading && leads.length === 0 && (
-                <div className="text-center py-2 text-gray-500 text-sm">Loading leads...</div>
-              )}
-              {!leads.length && !isLoading && (
-                <div className="text-center py-2 text-gray-400 text-xs">No leads found</div>
-              )}
-            </div>
+                        >
+                          <Phone className="h-4 w-4" />
+                          <span className="hidden sm:inline">{lead.phone}</span>
+                        </a>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {lead.city || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {Array.isArray(lead.assignedTo) && lead.assignedTo.length > 0 ? lead.assignedTo.map((u: any) => u.name).join(", ") : "Unassigned"}
+                    </TableCell>
+                    <TableCell className="hidden xl:table-cell">
+                      {new Date(lead.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {lead.formName || "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <div ref={loaderRef} />
+            {isFetchingNextPage && (
+              <div className="text-center py-2 text-gray-500 text-sm">Loading more...</div>
+            )}
+            {hasNextPage && !isFetchingNextPage && (
+              <div className="text-center py-2">
+                <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
+                  Load More
+                </Button>
+              </div>
+            )}
+            {!hasNextPage && leads.length > 0 && (
+              <div className="text-center py-2 text-gray-400 text-xs">No more leads</div>
+            )}
+            {isLoading && leads.length === 0 && (
+              <div className="text-center py-2 text-gray-500 text-sm">Loading leads...</div>
+            )}
+            {!leads.length && !isLoading && (
+              <div className="text-center py-2 text-gray-400 text-xs">No leads found</div>
+            )}
           </div>
         </CardContent>
       </Card>

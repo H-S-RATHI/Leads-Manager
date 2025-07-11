@@ -84,8 +84,8 @@ export function LeadsFilters() {
         </div>
         <div className="relative">
           <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-            <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Status">
-              <FileText className={`h-5 w-5 ${filters.status !== 'all' ? 'text-foreground' : 'text-muted-foreground'}`} />
+            <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center rounded-full ${filters.status !== 'all' ? 'bg-black' : ''}`} aria-label="Status">
+              <FileText className={`h-5 w-5 ${filters.status !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
@@ -103,8 +103,8 @@ export function LeadsFilters() {
               value={filters.assignedTo}
               onValueChange={(value) => setFilters({ ...filters, assignedTo: value })}
             >
-              <SelectTrigger className="w-10 h-10 p-0 flex items-center justify-center" aria-label="Assigned To">
-                <User className={`h-5 w-5 ${filters.assignedTo !== 'all' ? 'text-foreground' : 'text-muted-foreground'}`} />
+              <SelectTrigger className={`w-10 h-10 p-0 flex items-center justify-center rounded-full ${filters.assignedTo !== 'all' ? 'bg-black' : ''}`} aria-label="Assigned To">
+                <User className={`h-5 w-5 ${filters.assignedTo !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All users</SelectItem>
