@@ -1,24 +1,37 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DesktopSidebar } from "./desktop-sidebar"
 import { Header } from "./header"
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { ChevronRight } from "lucide-react";
 
-function useIsMobile() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(max-width: 768px)").matches;
-}
-
 export function DashboardShell({ user, children }: { user: any; children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
+  const [hideSidebar, setHideSidebar] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const isSuperAdmin = user.role === "super_admin";
-  const isSalesRep = user.role === "sales_rep";
-  const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
+  const isAdminOrSalesRep = ["admin", "sales_rep"].includes(user.role);
+
+  useEffect(() => {
+    setMounted(true)
+    if (isAdminOrSalesRep) {
+      const checkMobile = () => {
+        setHideSidebar(window.matchMedia("(max-width: 768px)").matches)
+      }
+      checkMobile()
+      window.addEventListener("resize", checkMobile)
+      return () => window.removeEventListener("resize", checkMobile)
+    }
+  }, [isAdminOrSalesRep])
+
+  // Only render sidebar after mount, so we know the screen size
+  const shouldShowSidebar =
+    !isAdminOrSalesRep ||
+    (mounted && !hideSidebar) ||
+    isSuperAdmin
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar for super_admin: hide on mobile when collapsed, show open button */}
       {isSuperAdmin && collapsed && (
         <button
           className="fixed top-4 left-4 z-50 p-2 rounded bg-gray-900 text-white shadow-lg lg:hidden"
@@ -28,8 +41,7 @@ export function DashboardShell({ user, children }: { user: any; children: React.
           <ChevronRight className="h-6 w-6" />
         </button>
       )}
-      {/* Only show sidebar if not sales_rep on mobile */}
-      {!(isSalesRep && isMobile) && (
+      {shouldShowSidebar && (
         <div
           className={
             isSuperAdmin
@@ -50,7 +62,6 @@ export function DashboardShell({ user, children }: { user: any; children: React.
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
-      {/* Restore mobile bottom navigation for admin and sales_rep */}
       {["admin", "sales_rep"].includes(user.role) && (
         <MobileBottomNav user={user} />
       )}
