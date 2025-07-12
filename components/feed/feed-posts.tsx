@@ -155,7 +155,19 @@ export function FeedPosts() {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <Card key={post._id}>
+        <Card key={post._id} className="relative">
+          {/* Edit icon at top right for post author */}
+          {session?.user?.id === post.author._id && (
+            <button
+              onClick={() => startEdit(post)}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              title="Edit"
+              aria-label="Edit post"
+              type="button"
+            >
+              <Edit className="h-5 w-5 text-gray-500" />
+            </button>
+          )}
           <CardHeader>
             <div className="flex items-center space-x-3">
               <Avatar className="h-8 w-8">
@@ -200,50 +212,38 @@ export function FeedPosts() {
                 <Share className="h-4 w-4" />
                 <span>Share</span>
               </Button>
-              {session?.user?.id === post.author._id && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => startEdit(post)}
-                    className="flex items-center space-x-1"
-                  >
-                    <Edit className="h-4 w-4" />
-                    <span>Edit</span>
-                  </Button>
-                  {post.editHistory && post.editHistory.length > 0 && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="flex items-center space-x-1"
-                        >
-                          <History className="h-4 w-4" />
-                          <span>History</span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Edit History</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          {post.editHistory.map((edit, index) => (
-                            <div key={index} className="border rounded p-3">
-                              <div className="text-sm text-gray-500 mb-2">
-                                Edited by {edit.editedBy.name} on {formatDate(edit.editedAt)}
-                              </div>
-                              <div className="text-sm bg-gray-50 p-2 rounded">
-                                <Label className="text-xs text-gray-600 mb-1 block">Previous Content:</Label>
-                                <p className="whitespace-pre-wrap">{edit.previousContent}</p>
-                              </div>
-                            </div>
-                          ))}
+              {/* Remove Edit button from here */}
+              {post.editHistory && post.editHistory.length > 0 && session?.user?.id === post.author._id && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center space-x-1"
+                    >
+                      <History className="h-4 w-4" />
+                      <span>History</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Edit History</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {post.editHistory.map((edit, index) => (
+                        <div key={index} className="border rounded p-3">
+                          <div className="text-sm text-gray-500 mb-2">
+                            Edited by {edit.editedBy.name} on {formatDate(edit.editedAt)}
+                          </div>
+                          <div className="text-sm bg-gray-50 p-2 rounded">
+                            <Label className="text-xs text-gray-600 mb-1 block">Previous Content:</Label>
+                            <p className="whitespace-pre-wrap">{edit.previousContent}</p>
+                          </div>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  )}
-                </>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
 
