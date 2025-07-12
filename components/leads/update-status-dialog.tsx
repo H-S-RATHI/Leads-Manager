@@ -32,6 +32,8 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
   const queryClient = useQueryClient()
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [mobileSheetHeight, setMobileSheetHeight] = useState<string | undefined>(undefined)
+  const [generated, setGenerated] = useState(false)
+  const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
     if (isMobile && open) {
@@ -161,12 +163,32 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
     }
   }
 
+  const handleGenerate = async () => {
+    setGenerating(true)
+    try {
+      const res = await fetch("/api/gemini-summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: info }),
+      })
+      const data = await res.json()
+      if (data.summary) {
+        setInfo(data.summary)
+        setGenerated(true)
+      }
+    } catch (e) {
+      toast({ title: "AI Error", description: "Failed to generate summary.", variant: "destructive" })
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const formContent = (
     <>
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>Status</Label>
-          <Select value={status} onValueChange={setStatus} disabled={!canUpdate}>
+          <Select value={status} onValueChange={s => { setStatus(s); setGenerated(false); }} disabled={!canUpdate}>
             <SelectTrigger>
               <SelectValue>{status}</SelectValue>
             </SelectTrigger>
@@ -189,9 +211,21 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
             className="w-full border rounded p-2 min-h-[80px] resize-none"
             placeholder="Describe what response you received or any important info..."
             value={info}
-            onChange={e => setInfo(e.target.value)}
+            onChange={e => { setInfo(e.target.value); setGenerated(false); }}
             required
           />
+          <div className="flex justify-end gap-2">
+            {!generated && (
+              <Button type="button" onClick={handleGenerate} disabled={!info.trim() || generating}>
+                {generating ? "Generating..." : "Generate"}
+              </Button>
+            )}
+            {generated && (
+              <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate}>
+                {loading ? "Updating..." : "Update Status"}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </>
@@ -201,9 +235,6 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
     <>
       <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
         Cancel
-      </Button>
-      <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate} className="w-full sm:w-auto">
-        {loading ? "Updating..." : "Update Status"}
       </Button>
     </>
   )
