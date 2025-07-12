@@ -188,6 +188,17 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
     <>
       <div className="space-y-4">
         <div className="space-y-2">
+          <Label>Client Category</Label>
+          <CategorySelector 
+            leadId={lead._id} 
+            currentCategory={lead.category || "none"} 
+            onCategoryUpdated={() => {
+              if (onStatusUpdated) onStatusUpdated()
+            }}
+          />
+        </div>
+        
+        <div className="space-y-2">
           <Label>Status</Label>
           <Select value={status} onValueChange={s => { setStatus(s); setGenerated(false); }} disabled={!canUpdate}>
             <SelectTrigger>
@@ -204,17 +215,6 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
           {!canUpdate && (
             <div className="text-sm text-gray-500 mt-2">No further status changes allowed.</div>
           )}
-        </div>
-        
-        <div className="space-y-2">
-          <Label>Client Category</Label>
-          <CategorySelector 
-            leadId={lead._id} 
-            currentCategory={lead.category || "none"} 
-            onCategoryUpdated={() => {
-              if (onStatusUpdated) onStatusUpdated()
-            }}
-          />
         </div>
         
         <div className="space-y-2">
