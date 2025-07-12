@@ -7,12 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Phone } from "lucide-react"
-import Link from "next/link"
 import { useLeadsInfinite, Lead, LeadsResponse } from "@/hooks/use-leads"
 import { useEffect, useRef, useCallback } from "react"
 import type { InfiniteData } from "@tanstack/react-query"
 import { Checkbox } from "@/components/ui/checkbox"
-import { AssignLeadDialog } from "./assign-lead-dialog"
 import { UpdateStatusDialog } from "./update-status-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
@@ -222,6 +220,19 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
     }
   }
 
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "hot":
+        return "bg-red-100 text-red-700"
+      case "warm":
+        return "bg-orange-100 text-orange-700"
+      case "cold":
+        return "bg-blue-100 text-blue-700"
+      default:
+        return "bg-gray-100 text-gray-600"
+    }
+  }
+
   // Bulk action bar (visible if any leads are selected)
   const showBulkBar = selectedLeads.length > 0 && (userRole === "admin" || userRole === "super_admin")
 
@@ -387,7 +398,14 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                     />
                     <h3 className="font-medium text-sm">{lead.name}</h3>
                   </div>
-                  <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                  <div className="flex flex-col gap-1 items-end">
+                    <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                    {lead.category && lead.category !== "none" && (
+                      <Badge variant="outline" className={`${getCategoryColor(lead.category)} text-xs`}>
+                        {lead.category.charAt(0).toUpperCase() + lead.category.slice(1)}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-2 mt-2">
                   {/* Removed email display */}
@@ -513,7 +531,14 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                         {lead.city || "-"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                        <div className="space-y-1">
+                          <Badge variant="status" className={`${getStatusColor(lead.status)} text-xs`}>{lead.status}</Badge>
+                          {lead.category && lead.category !== "none" && (
+                            <Badge variant="outline" className={`${getCategoryColor(lead.category)} text-xs`}>
+                              {lead.category.charAt(0).toUpperCase() + lead.category.slice(1)}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       {userRole !== "sales_rep" && (
                         <TableCell className="hidden lg:table-cell">

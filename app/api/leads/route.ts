@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const status = searchParams.get("status")
     const assignedTo = searchParams.get("assignedTo")
+    const category = searchParams.get("category")
     const search = searchParams.get("search")
     const sort = searchParams.get("sort") || "createdAt"
 
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Apply other filters
     if (status && status !== "all") query.status = status
+    if (category && category !== "all") query.category = category
     if (search) {
       query.$or = [{ name: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }]
     }

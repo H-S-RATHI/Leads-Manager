@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMediaQuery } from "@/hooks/use-mobile"
+import { CategorySelector } from "./category-selector"
 
 interface UpdateStatusDialogProps {
   lead: any
@@ -204,6 +205,18 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
             <div className="text-sm text-gray-500 mt-2">No further status changes allowed.</div>
           )}
         </div>
+        
+        <div className="space-y-2">
+          <Label>Client Category</Label>
+          <CategorySelector 
+            leadId={lead._id} 
+            currentCategory={lead.category || "none"} 
+            onCategoryUpdated={() => {
+              if (onStatusUpdated) onStatusUpdated()
+            }}
+          />
+        </div>
+        
         <div className="space-y-2">
           <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
           <textarea

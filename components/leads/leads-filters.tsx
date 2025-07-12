@@ -17,6 +17,7 @@ export function LeadsFilters() {
   const [filters, setFilters] = useState({
     status: searchParams.get("status") || "all",
     assignedTo: searchParams.get("assignedTo") || "all",
+    category: searchParams.get("category") || "all",
     search: searchParams.get("search") || "",
   })
   const [users, setUsers] = useState([])
@@ -63,7 +64,7 @@ export function LeadsFilters() {
   }
 
   const clearFilters = () => {
-    setFilters({ status: "all", assignedTo: "all", search: "" })
+    setFilters({ status: "all", assignedTo: "all", category: "all", search: "" })
     router.push("/dashboard/leads")
   }
 
@@ -100,6 +101,26 @@ export function LeadsFilters() {
               <SelectItem value="Contacted">Contacted</SelectItem>
               <SelectItem value="Qualified">Qualified</SelectItem>
               <SelectItem value="Purchased">Purchased</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="relative">
+          <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+            <SelectTrigger
+              className={`w-10 h-10 p-0 flex items-center justify-center relative hide-default-arrow ${filters.category !== 'all' ? 'bg-black' : ''}`}
+              aria-label="Category"
+            >
+              <User className={`h-5 w-5 ${filters.category !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
+              {/* Custom arrow color for active filter */}
+              <span className="absolute right-2">
+                <ChevronDown className={`h-4 w-4 ${filters.category !== 'all' ? 'text-white' : 'text-muted-foreground'}`} />
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="hot">Hot</SelectItem>
+              <SelectItem value="warm">Warm</SelectItem>
+              <SelectItem value="cold">Cold</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -161,6 +182,20 @@ export function LeadsFilters() {
                   <SelectItem value="Contacted">Contacted</SelectItem>
                   <SelectItem value="Qualified">Qualified</SelectItem>
                   <SelectItem value="Purchased">Purchased</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All categories</SelectItem>
+                  <SelectItem value="hot">Hot</SelectItem>
+                  <SelectItem value="warm">Warm</SelectItem>
+                  <SelectItem value="cold">Cold</SelectItem>
                 </SelectContent>
               </Select>
             </div>

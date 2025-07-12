@@ -44,6 +44,11 @@ const leadSchema = new mongoose.Schema({
     enum: ["New", "Contacted", "Visited", "Qualified", "Purchased"],
     default: "New",
   },
+  category: {
+    type: String,
+    enum: ["none", "hot", "warm", "cold"],
+    default: "none",
+  },
   assignedTo: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

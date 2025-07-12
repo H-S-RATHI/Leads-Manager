@@ -8,6 +8,7 @@ export interface Lead {
   phone: string
   city: string
   status: string
+  category?: string
   assignedTo: any
   createdAt: string
   formName?: string
@@ -27,6 +28,7 @@ export function useLeads(
   filters: {
     status?: string
     assignedTo?: string
+    category?: string
     search?: string
   } = {},
   userRole?: string,
@@ -71,6 +73,7 @@ export function useLeadsInfinite(
   filters: {
     status?: string
     assignedTo?: string
+    category?: string
     search?: string
   } = {},
   userRole?: string,

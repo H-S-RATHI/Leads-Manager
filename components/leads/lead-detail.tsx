@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Phone, Mail, Calendar, User } from "lucide-react"
 import { AssignLeadDialog } from "./assign-lead-dialog"
 import { UpdateStatusDialog } from "./update-status-dialog"
+import { CategorySelector } from "./category-selector"
 
 interface LeadDetailProps {
   lead: any
@@ -41,6 +42,19 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
         return "bg-purple-100 text-purple-800"
       default:
         return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "hot":
+        return "bg-red-100 text-red-700"
+      case "warm":
+        return "bg-orange-100 text-orange-700"
+      case "cold":
+        return "bg-blue-100 text-blue-700"
+      default:
+        return "bg-gray-100 text-gray-600"
     }
   }
 
@@ -109,6 +123,18 @@ export function LeadDetail({ lead, userRole, userId }: LeadDetailProps) {
             <div className="flex items-center justify-between">
               <span className="font-medium">Status:</span>
               <Badge variant="status" className={getStatusColor(lead.status)}>{lead.status}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Category:</span>
+              <div className="flex items-center gap-2">
+                {lead.category && lead.category !== "none" ? (
+                  <Badge variant="outline" className={getCategoryColor(lead.category)}>
+                    {lead.category.charAt(0).toUpperCase() + lead.category.slice(1)}
+                  </Badge>
+                ) : (
+                  <span className="text-sm text-gray-500">None</span>
+                )}
+              </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Assigned To:</span>
