@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { CategorySelector } from "./category-selector"
+import { Sparkles } from "lucide-react"
 
 interface UpdateStatusDialogProps {
   lead: any
@@ -219,25 +220,30 @@ export function UpdateStatusDialog({ lead, onStatusUpdated }: UpdateStatusDialog
         
         <div className="space-y-2">
           <Label htmlFor="status-info">Status Info <span className='text-red-500'>*</span></Label>
-          <textarea
-            id="status-info"
-            className="w-full border rounded p-2 min-h-[80px] resize-none"
-            placeholder="Describe what response you received or any important info..."
-            value={info}
-            onChange={e => { setInfo(e.target.value); setGenerated(false); }}
-            required
-          />
-          <div className="flex justify-end gap-2">
-            {!generated && (
-              <Button type="button" onClick={handleGenerate} disabled={!info.trim() || generating}>
-                {generating ? "Generating..." : "Generate"}
-              </Button>
-            )}
-            {generated && (
-              <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate}>
-                {loading ? "Updating..." : "Update Status"}
-              </Button>
-            )}
+          <div className="relative">
+            <textarea
+              id="status-info"
+              className="w-full border rounded p-2 min-h-[80px] resize-none pr-10"
+              placeholder="Describe what response you received or any important info..."
+              value={info}
+              onChange={e => { setInfo(e.target.value); setGenerated(false); }}
+              required
+            />
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={!info.trim() || generating}
+              className="absolute bottom-2 right-2 p-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Generate with AI"
+              tabIndex={0}
+            >
+              <Sparkles className={`h-5 w-5 ${generating ? 'animate-spin text-blue-400' : 'text-gray-400'}`} />
+            </button>
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
+            <Button onClick={handleUpdateStatus} disabled={loading || !canUpdate} type="button">
+              {loading ? "Updating..." : "Update Status"}
+            </Button>
           </div>
         </div>
       </div>
