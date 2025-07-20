@@ -546,7 +546,13 @@ export function LeadsTable({ userRole, userId }: LeadsTableProps) {
                         </TableCell>
                       )}
                       <TableCell className="hidden xl:table-cell">
-                        {new Date(lead.createdAt).toLocaleDateString()}
+                        {(() => {
+                          const d = new Date(lead.createdAt)
+                          const day = String(d.getDate()).padStart(2, '0')
+                          const month = String(d.getMonth() + 1).padStart(2, '0')
+                          const year = d.getFullYear()
+                          return `${day}/${month}/${year}`
+                        })()}
                       </TableCell>
                       {userRole !== "sales_rep" && (
                         <TableCell className="hidden lg:table-cell">

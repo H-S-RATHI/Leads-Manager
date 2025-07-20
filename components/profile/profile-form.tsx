@@ -167,7 +167,13 @@ export function ProfileForm({ user, onProfileUpdated }: ProfileFormProps) {
             </div>
             <div className="space-y-2">
               <Label>Member Since</Label>
-              <Input value={new Date(user?.createdAt || Date.now()).toLocaleDateString()} disabled />
+              <Input value={(() => {
+                const d = new Date(user?.createdAt || Date.now())
+                const day = String(d.getDate()).padStart(2, '0')
+                const month = String(d.getMonth() + 1).padStart(2, '0')
+                const year = d.getFullYear()
+                return `${day}/${month}/${year}`
+              })()} disabled />
             </div>
             <Button type="submit" disabled={loading}>
               {loading ? "Updating..." : "Update Profile"}

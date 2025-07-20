@@ -82,7 +82,13 @@ export function UsersTable() {
                     <TableCell>
                       <Badge className={getRoleColor(user.role)}>{formatRole(user.role)}</Badge>
                     </TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{(() => {
+                      const d = new Date(user.createdAt)
+                      const day = String(d.getDate()).padStart(2, '0')
+                      const month = String(d.getMonth() + 1).padStart(2, '0')
+                      const year = d.getFullYear()
+                      return `${day}/${month}/${year}`
+                    })()}</TableCell>
                   </TableRow>
                 )
               })}

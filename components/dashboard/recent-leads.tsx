@@ -67,7 +67,13 @@ export function RecentLeads() {
                     {lead.name}
                   </Link>
                   <p className="text-sm text-gray-500 truncate">{lead.email || 'No email'}</p>
-                  <p className="text-xs text-gray-400">{new Date(lead.createdAt).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-400">{(() => {
+                    const d = new Date(lead.createdAt)
+                    const day = String(d.getDate()).padStart(2, '0')
+                    const month = String(d.getMonth() + 1).padStart(2, '0')
+                    const year = d.getFullYear()
+                    return `${day}/${month}/${year}`
+                  })()}</p>
                 </div>
                 <Badge variant="status" className={getStatusColor(lead.status)}>{lead.status}</Badge>
               </div>

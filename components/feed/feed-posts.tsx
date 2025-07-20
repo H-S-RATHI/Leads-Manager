@@ -37,16 +37,13 @@ interface Post {
 // Consistent date formatting function to prevent hydration errors
 const formatDate = (date: Date | string) => {
   const d = new Date(date)
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: true
-  }
-  return d.toLocaleString('en-US', options)
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+  const hour = d.getHours()
+  const minute = String(d.getMinutes()).padStart(2, '0')
+  const second = String(d.getSeconds()).padStart(2, '0')
+  return `${day}/${month}/${year} ${hour}:${minute}:${second}`
 }
 
 export function FeedPosts() {
