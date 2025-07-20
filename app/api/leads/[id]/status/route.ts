@@ -57,6 +57,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     })
 
     // Send conversion event to Facebook
+    /*
     try {
       const eventName = getEventNameFromStatus(status)
       if (eventName) {
@@ -92,6 +93,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       console.error("Conversion tracking error:", conversionError)
       // Don't fail the status update if conversion tracking fails
     }
+    */
 
     let safeLead
     try {

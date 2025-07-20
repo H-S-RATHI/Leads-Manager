@@ -99,6 +99,7 @@ export function LeadsFilters() {
               <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="New">New</SelectItem>
               <SelectItem value="Contacted">Contacted</SelectItem>
+              <SelectItem value="Visited">Visited</SelectItem>
               <SelectItem value="Qualified">Qualified</SelectItem>
               <SelectItem value="Purchased">Purchased</SelectItem>
             </SelectContent>
@@ -184,6 +185,7 @@ export function LeadsFilters() {
                   <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="New">New</SelectItem>
                   <SelectItem value="Contacted">Contacted</SelectItem>
+                  <SelectItem value="Visited">Visited</SelectItem>
                   <SelectItem value="Qualified">Qualified</SelectItem>
                   <SelectItem value="Purchased">Purchased</SelectItem>
                 </SelectContent>
